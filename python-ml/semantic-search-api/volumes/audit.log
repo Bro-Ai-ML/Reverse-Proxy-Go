@@ -1,0 +1,9 @@
+{"timestamp": "2025-06-02T10:00:00", "endpoint": "/api/test", "user": "test", "params": {"foo": "bar"}}
+{"timestamp": "2025-06-02T09:46:01.024376", "endpoint": "/api/search", "user": "api", "params": {"query": "contrat", "top_k": 1, "threshold": 0.1, "filters": null}}
+{"timestamp": "2025-06-02T09:46:08.504034", "endpoint": "/api/search", "user": "api", "params": {"query": "contrat", "top_k": 1, "threshold": 0.1, "filters": null}}
+{"timestamp": "2025-06-02T09:46:44.488070", "endpoint": "/api/search", "user": "api", "params": {"query": "contrat", "top_k": 1, "threshold": 0.1, "filters": null}}
+{"timestamp": "2025-06-02T09:47:09.066925", "endpoint": "/api/search", "user": "api", "params": {"query": "contrat", "top_k": 1, "threshold": 0.1, "filters": null}}
+{"timestamp": "2025-06-02T09:49:00.450535", "endpoint": "/api/search", "user": "api", "params": {"query": "contrat", "top_k": 1, "threshold": 0.1, "filters": null}}
+{"timestamp": "2025-06-02T09:49:04.112194", "endpoint": "/api/search", "user": "api", "params": {"query": "contrat", "top_k": 1, "threshold": 0.1, "filters": null}}
+{"timestamp": "2025-06-02T09:52:11.627825", "endpoint": "/api/index", "user": "api", "params": {"documents": ["Contrat de prestation de services entre AcmeCorp et BetaInc. sign\u00e9 le 12/01/2024."], "metadata": [{"type": "contrat", "client": "AcmeCorp"}]}}
+{"timestamp": "2025-06-02T09:52:20.763475", "endpoint": "/api/search", "user": "api", "params": {"query": "prestataire services AcmeCorp", "top_k": 3, "threshold": 0.1, "filters": null}}

@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>middleware: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">stripe-demo/shared/middleware/circuitbreaker.go (100.0%)</option>
+				
+				<option value="file1">stripe-demo/shared/middleware/common.go (100.0%)</option>
+				
+				<option value="file2">stripe-demo/shared/middleware/jwt.go (100.0%)</option>
+				
+				<option value="file3">stripe-demo/shared/middleware/ratelimit.go (94.3%)</option>
+				
+				<option value="file4">stripe-demo/shared/middleware/rbac.go (100.0%)</option>
+				
+				<option value="file5">stripe-demo/shared/middleware/validate.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package middleware
+
+import (
+        "fmt"
+        "net/http"
+        "net/http/httptest"
+
+        "github.com/sony/gobreaker"
+)
+
+// CircuitBreakerMiddleware wraps an HTTP handler with circuit breaker functionality.
+// It returns a 503 Service Unavailable response when the circuit is open.
+func CircuitBreakerMiddleware(cb *gobreaker.CircuitBreaker, next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                // Create a response recorder to capture the status code
+                rec := httptest.NewRecorder()
+                
+                // Execute the handler through the circuit breaker
+                _, err := cb.Execute(func() (interface{}, error) </span><span class="cov8" title="1">{
+                        next.ServeHTTP(rec, r)
+                        
+                        // If the status code is 5xx, return an error to trip the circuit
+                        if rec.Code &gt;= http.StatusInternalServerError </span><span class="cov8" title="1">{
+                                return nil, fmt.Errorf("server error: %d", rec.Code)
+                        }</span>
+                        <span class="cov8" title="1">return nil, nil</span>
+                })
+
+                // If the circuit is open, return 503
+                <span class="cov8" title="1">if err == gobreaker.ErrOpenState </span><span class="cov8" title="1">{
+                        http.Error(w, "service unavailable (circuit open)", http.StatusServiceUnavailable)
+                        return
+                }</span>
+
+                // Copy the recorded response to the original writer
+                <span class="cov8" title="1">for k, v := range rec.Header() </span><span class="cov8" title="1">{
+                        w.Header()[k] = v
+                }</span>
+                <span class="cov8" title="1">w.WriteHeader(rec.Code)
+                _, _ = w.Write(rec.Body.Bytes())</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package middleware
+
+import (
+        "log/slog"
+        "net/http"
+        "time"
+)
+
+// SecurityHeadersMiddleware adds common security-related HTTP headers.
+// It sets X-Content-Type-Options to nosniff, X-Frame-Options to DENY,
+// and X-XSS-Protection to 1; mode=block.
+func SecurityHeadersMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                w.Header().Set("X-Content-Type-Options", "nosniff")
+                w.Header().Set("X-Frame-Options", "DENY")
+                w.Header().Set("X-XSS-Protection", "1; mode=block")
+
+                next.ServeHTTP(w, r)
+        }</span>)
+}
+
+// LoggingMiddleware logs HTTP requests with method, path, and duration.
+func LoggingMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                start := time.Now()
+
+                next.ServeHTTP(w, r)
+
+                slog.Info("request completed", "method", r.Method, "path", r.URL.Path, "duration", time.Since(start))
+        }</span>)
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package middleware
+
+import (
+        "net/http"
+        "strings"
+
+        "github.com/golang-jwt/jwt/v5"
+)
+
+var jwtSecret = []byte("replace_with_real_secret")
+
+func JWTMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                authHeader := r.Header.Get("Authorization")
+                if !strings.HasPrefix(authHeader, "Bearer ") </span><span class="cov8" title="1">{
+                        http.Error(w, "missing or invalid Authorization header", http.StatusUnauthorized)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+
+                token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) </span><span class="cov8" title="1">{
+                        return jwtSecret, nil
+                }</span>, jwt.WithValidMethods([]string{"HS256"}))
+
+                <span class="cov8" title="1">if err != nil || !token.Valid </span><span class="cov8" title="1">{
+                        http.Error(w, "invalid token", http.StatusUnauthorized)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">next.ServeHTTP(w, r)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package middleware
+
+import (
+        "log/slog"
+        "net/http"
+        "strings"
+        "sync"
+
+        "golang.org/x/time/rate"
+)
+
+// RateLimiterConfig holds the configuration for the rate limiting middleware.
+// It allows specifying global limits and IP-based limits.
+// MaxIPLimiters defines the maximum number of distinct IP addresses to store for rate limiting.
+// If this limit is exceeded, the oldest entries might be cleaned up (basic LRU-like behavior implemented).
+type RateLimiterConfig struct {
+        GlobalLimit   rate.Limit
+        GlobalBurst   int
+        IPLimit       rate.Limit
+        IPBurst       int
+        MaxIPLimiters int
+        Logger        *slog.Logger // Optional logger, defaults to slog.Default()
+}
+
+// RateLimiter provides HTTP middleware for rate limiting requests.
+// It supports both a global rate limit and per-IP rate limits.
+type RateLimiter struct {
+        config        *RateLimiterConfig
+        globalLimiter *rate.Limiter
+        ipLimiters    map[string]*rate.Limiter
+        mu            sync.Mutex
+        logger        *slog.Logger
+}
+
+// NewRateLimiter creates a new RateLimiter middleware with the given configuration.
+func NewRateLimiter(cfg *RateLimiterConfig) *RateLimiter <span class="cov8" title="1">{
+        logger := cfg.Logger
+        if logger == nil </span><span class="cov0" title="0">{
+                logger = slog.Default()
+        }</span>
+
+        <span class="cov8" title="1">return &amp;RateLimiter{
+                config:        cfg,
+                globalLimiter: rate.NewLimiter(cfg.GlobalLimit, cfg.GlobalBurst),
+                ipLimiters:    make(map[string]*rate.Limiter),
+                logger:        logger,
+        }</span>
+}
+
+// Middleware returns an http.Handler that applies rate limiting.
+func (rl *RateLimiter) Middleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                ip := getIP(r)
+
+                // Check global rate limit first
+                if !rl.globalLimiter.Allow() </span><span class="cov8" title="1">{
+                        rl.logger.WarnContext(r.Context(), "Global rate limit exceeded", "ip", ip, "path", r.URL.Path)
+                        http.Error(w, "Global rate limit exceeded", http.StatusTooManyRequests)
+
+                        return
+                }</span>
+
+                // Check IP-based rate limit
+                <span class="cov8" title="1">rl.mu.Lock()
+                limiter, exists := rl.ipLimiters[ip]
+
+                if !exists </span><span class="cov8" title="1">{
+                        limiter = rate.NewLimiter(rl.config.IPLimit, rl.config.IPBurst)
+                        rl.ipLimiters[ip] = limiter
+                        // Basic cleanup if map grows too large: remove one old entry (not necessarily the oldest)
+                        if len(rl.ipLimiters) &gt; rl.config.MaxIPLimiters </span><span class="cov8" title="1">{
+                                for k := range rl.ipLimiters </span><span class="cov8" title="1">{
+                                        if k != ip </span><span class="cov8" title="1">{ // Don't delete the just-added entry
+                                                delete(rl.ipLimiters, k)
+                                                rl.logger.Debug("Cleaned up old IP limiter entry", "ip", k)
+
+                                                break</span> // Remove one and exit cleanup
+                                        }
+                                }
+                        }
+                }
+                <span class="cov8" title="1">rl.mu.Unlock()
+
+                if !limiter.Allow() </span><span class="cov8" title="1">{
+                        rl.logger.WarnContext(r.Context(), "IP-based rate limit exceeded", "ip", ip, "path", r.URL.Path)
+                        http.Error(w, "IP-based rate limit exceeded", http.StatusTooManyRequests)
+
+                        return
+                }</span>
+
+                <span class="cov8" title="1">next.ServeHTTP(w, r)</span>
+        })
+}
+
+// getIP extracts the client's IP address from the request.
+// It checks X-Forwarded-For header first, then r.RemoteAddr.
+func getIP(r *http.Request) string <span class="cov8" title="1">{
+        forwarded := r.Header.Get("X-Forwarded-For")
+        if forwarded != "" </span><span class="cov8" title="1">{
+                ips := strings.Split(forwarded, ",")
+                return strings.TrimSpace(ips[0])
+        }</span>
+
+        <span class="cov8" title="1">parts := strings.Split(r.RemoteAddr, ":")
+        if len(parts) &gt; 0 </span><span class="cov8" title="1">{
+                return parts[0]
+        }</span>
+
+        <span class="cov0" title="0">return r.RemoteAddr</span> // Fallback
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package middleware
+
+import (
+        "net/http"
+        "strings"
+)
+
+type Role string
+
+const (
+        RoleAdmin  Role = "admin"
+        RoleUser   Role = "user"
+        RoleViewer Role = "viewer"
+)
+
+// RBACMiddleware checks if the user has the required role.
+func RBACMiddleware(required Role, next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                role := r.Header.Get("X-User-Role")
+                if !strings.EqualFold(role, string(required)) </span><span class="cov8" title="1">{
+                        http.Error(w, "forbidden: insufficient role", http.StatusForbidden)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">next.ServeHTTP(w, r)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package middleware
+
+import (
+        "net/http"
+)
+
+func ValidateMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                // TODO: Add real input validation logic here
+                next.ServeHTTP(w, r)
+        }</span>)
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

@@ -1,0 +1,23 @@
+?   	stripe-demo	[no test files]
+?   	stripe-demo/services/usage-engine	[no test files]
+=== RUN   TestLoad_DefaultValues
+--- PASS: TestLoad_DefaultValues (0.00s)
+=== RUN   TestLoad_CustomValues
+--- PASS: TestLoad_CustomValues (0.00s)
+=== RUN   TestLoad_InvalidShutdownTimeout
+--- PASS: TestLoad_InvalidShutdownTimeout (0.00s)
+=== RUN   TestLoad_EmptyPort
+--- PASS: TestLoad_EmptyPort (0.00s)
+=== RUN   TestLoad_ZeroShutdownTimeout
+--- PASS: TestLoad_ZeroShutdownTimeout (0.00s)
+PASS
+ok  	stripe-demo/shared/config	(cached)
+=== RUN   TestNew
+--- PASS: TestNew (0.00s)
+=== RUN   TestServer_Start_And_Shutdown
+time=2025-05-31T12:09:05.808+02:00 level=INFO msg="🚀 Server starting" address=:0
+time=2025-05-31T12:09:05.909+02:00 level=INFO msg="⏹️ Shutting down server..."
+time=2025-05-31T12:09:05.909+02:00 level=INFO msg="✅ Server shutdown complete"
+--- PASS: TestServer_Start_And_Shutdown (0.10s)
+PASS
+ok  	stripe-demo/shared/httpserver	(cached)

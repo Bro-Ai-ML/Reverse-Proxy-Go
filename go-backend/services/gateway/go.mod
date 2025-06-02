@@ -1,0 +1,16 @@
+module gateway
+
+go 1.23.0
+
+toolchain go1.24.3
+
+require (
+	github.com/go-chi/chi/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
+)
+
+replace shared/logger => ../../shared/logger
+
+replace shared/middleware => ../../shared/middleware
+
+replace gateway/config => ./config

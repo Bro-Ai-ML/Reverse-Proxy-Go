@@ -1,0 +1,15 @@
+mode: set
+stripe-demo/services/payment-service/internal/config/config.go:28.37,30.21 2 0
+stripe-demo/services/payment-service/internal/config/config.go:30.21,32.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:33.2,34.16 2 0
+stripe-demo/services/payment-service/internal/config/config.go:34.16,36.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:37.2,47.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:51.42,52.18 1 0
+stripe-demo/services/payment-service/internal/config/config.go:52.18,54.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:55.2,55.29 1 0
+stripe-demo/services/payment-service/internal/config/config.go:55.29,57.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:58.2,58.53 1 0
+stripe-demo/services/payment-service/internal/config/config.go:58.53,60.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:61.2,61.122 1 0
+stripe-demo/services/payment-service/internal/config/config.go:61.122,63.3 1 0
+stripe-demo/services/payment-service/internal/config/config.go:64.2,64.12 1 0

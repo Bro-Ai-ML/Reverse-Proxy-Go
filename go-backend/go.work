@@ -1,0 +1,13 @@
+go 1.24.3
+
+use (
+	.
+	./services/billing-service
+	./services/customer-service
+	./services/gateway
+	./services/payment-service
+	./services/usage-service
+	./services/user-service
+	./services/webhook-service
+	./shared/stripe-client
+)

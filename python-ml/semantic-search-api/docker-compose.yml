@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  semantic-api:
+    build: .
+    container_name: semantic-api
+    environment:
+      - MODE=api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - ./volumes/audit.log:/app/audit.log
+    restart: unless-stopped
+    depends_on:
+      - redis
+  semantic-demo:
+    build: .
+    container_name: semantic-demo
+    environment:
+      - MODE=streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./:/app
+    depends_on:
+      - semantic-api
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    container_name: semantic-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./volumes/redis:/data
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - semantic-api
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: semantic-chromadb
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./volumes/chroma:/chroma/.chroma/index
+    restart: unless-stopped
+volumes:
+  redis_data:
+  chroma_data: 

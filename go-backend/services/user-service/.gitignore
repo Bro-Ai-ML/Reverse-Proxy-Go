@@ -1,0 +1,26 @@
+# Fichiers de couverture de test
+coverage.out
+coverage.html
+
+# Fichiers binaires
+/user-service
+
+# Fichiers IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Fichiers système
+.DS_Store
+
+# Fichiers de dépendances
+vendor/
+
+# Fichiers de configuration locaux
+.env
+.env.test
+
+# Fichiers de build
+dist/
+bin/

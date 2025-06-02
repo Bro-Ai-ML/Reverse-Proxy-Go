@@ -1,0 +1,25 @@
+linters-settings:
+  gosec:
+    excludes:
+      - G404 # crypto/rand is not necessary for tests
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - gosec
+    - gocritic
+    - gofmt
+    - goimports
+    - misspell
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - gosec
+
+  max-issues-per-linter: 0
+  max-same-issues: 0

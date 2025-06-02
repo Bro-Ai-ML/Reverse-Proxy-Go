@@ -1,0 +1,199 @@
+version: '3.8'
+
+services:
+  payment-service:
+    build: 
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    networks:
+      - stripe-network
+
+  customer-service:
+    build:
+      context: ./services/customer-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    networks:
+      - stripe-network
+
+  webhook-service:
+    build:
+      context: ./services/webhook-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - PORT=8003
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+    networks:
+      - stripe-network
+
+  gateway:
+    build: ./services/gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - billing-service
+      - user-service
+
+  usage-engine:
+    build:
+      context: .
+      dockerfile: services/usage-engine/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - REDIS_URL=redis://redis:6379
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+    depends_on:
+      - redis
+    networks:
+      - stripe-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - stripe-network
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "9001:8080"
+    environment:
+      - PORT=8080
+      - DB_HOST=auth-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=auth
+      - DB_SSLMODE=disable
+    depends_on:
+      - auth-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - stripe-network
+
+  auth-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+    networks:
+      - stripe-network
+
+  billing-service:
+    build:
+      context: .
+      dockerfile: services/billing-service/Dockerfile
+    ports:
+      - "9002:8080"
+    environment:
+      - PORT=8080
+      - DB_HOST=billing-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=billing
+      - DB_SSLMODE=disable
+      - AUTH_JWT_SECRET=${AUTH_JWT_SECRET}
+      - AUTH_PUBLIC_KEY_URL=http://auth-service:8080/api/v1/auth/public-key
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_SUCCESS_URL=http://localhost:3000/billing/success
+      - STRIPE_CANCEL_URL=http://localhost:3000/billing/cancel
+      - STRIPE_DEFAULT_CURRENCY=usd
+    depends_on:
+      - billing-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - stripe-network
+
+  billing-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: billing
+    volumes:
+      - billing-data:/var/lib/postgresql/data
+    networks:
+      - stripe-network
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/user-service/.env
+    depends_on:
+      - db
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "8081:8080"
+    networks:
+      - backend
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  jupyter-ml:
+    build: .
+    container_name: jupyter-ml
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/workspace
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+volumes:
+  auth-data:
+  billing-data:
+  user-data:
+  db_data:
+
+networks:
+  stripe-network:
+    driver: bridge
+  backend:
+    driver: bridge 
