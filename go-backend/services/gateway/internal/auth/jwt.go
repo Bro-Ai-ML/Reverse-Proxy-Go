@@ -58,12 +58,21 @@ func (j *JWTManager) GenerateToken(userID string, roles []string, ttl time.Durat
 }
 
 func (j *JWTManager) ValidateToken(tokenString string) (*Claims, error) {
+	opts := []jwt.ParserOption{jwt.WithValidMethods([]string{j.signingMethod.Alg()})}
+	if j.issuer != "" {
+		opts = append(opts, jwt.WithIssuer(j.issuer))
+	}
+	if len(j.audience) > 0 {
+		// Enforce the audience: tokens minted for other services must be
+		// rejected (previously the audience was written but never checked).
+		opts = append(opts, jwt.WithAudience(j.audience[0]))
+	}
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if token.Method != j.signingMethod {
 			return nil, errors.New("invalid signing method")
 		}
 		return j.publicKey, nil
-	})
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

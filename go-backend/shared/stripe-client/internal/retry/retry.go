@@ -89,10 +89,10 @@ func calculateBackoff(config Config, attempt int) time.Duration {
 	// Exponential backoff: Backoff * 2^attempt
 	backoffVal := float64(config.Backoff) * math.Pow(2, float64(attempt))
 
-	// Add jitter: random value between 0 and Backoff * 0.5
-	// Seeding rand here is for simplicity in this utility. For high-frequency, concurrent use,
-	// a shared, locked rand.Rand or per-goroutine rand.Rand might be preferred.
-	rand.Seed(time.Now().UnixNano())
+	// Add jitter: random value between 0 and Backoff * 0.5.
+	// The global rand source is auto-seeded and concurrency-safe since
+	// Go 1.20; seeding it per call (as before) was deprecated and produced
+	// correlated jitter for rapid successive retries.
 	jitter := rand.Float64() * float64(config.Backoff) * 0.5
 	duration := time.Duration(backoffVal + jitter)
 

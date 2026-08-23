@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	appctx "stripe-demo/services/user-service/internal/context"
 	"stripe-demo/services/user-service/internal/model"
 	"stripe-demo/services/user-service/internal/service"
 
@@ -35,7 +36,7 @@ func (h *RGPDHandlers) RegisterRoutes(router *mux.Router, authMiddleware mux.Mid
 // exportUserData exporte toutes les données personnelles de l'utilisateur
 func (h *RGPDHandlers) exportUserData(w http.ResponseWriter, r *http.Request) {
 	// Récupérer l'ID utilisateur du contexte (ajouté par le middleware d'authentification)
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := appctx.GetUserID(r.Context())
 	if !ok || userID == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -59,7 +60,7 @@ func (h *RGPDHandlers) exportUserData(w http.ResponseWriter, r *http.Request) {
 // updateConsent met à jour les préférences de consentement de l'utilisateur
 func (h *RGPDHandlers) updateConsent(w http.ResponseWriter, r *http.Request) {
 	// Récupérer l'ID utilisateur du contexte
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := appctx.GetUserID(r.Context())
 	if !ok || userID == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -86,7 +87,7 @@ func (h *RGPDHandlers) updateConsent(w http.ResponseWriter, r *http.Request) {
 // deleteAccount supprime le compte utilisateur et anonymise les données
 func (h *RGPDHandlers) deleteAccount(w http.ResponseWriter, r *http.Request) {
 	// Récupérer l'ID utilisateur du contexte
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := appctx.GetUserID(r.Context())
 	if !ok || userID == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

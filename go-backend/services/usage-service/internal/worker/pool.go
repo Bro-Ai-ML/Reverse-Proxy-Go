@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/stripe-ecosystem/services/usage-service/internal/config"
 	"github.com/stripe-ecosystem/shared/contracts"
@@ -62,18 +63,38 @@ func (p *Pool) usageWorker(id int) {
 	for {
 		select {
 		case event := <-p.usageEvents:
-			slog.DebugContext(p.ctx, "Usage worker processing event", "worker_id", id, "customer_id", event.CustomerID, "sub_item_id", event.SubscriptionItemID)
-			if err := p.processor.ProcessUsage(p.ctx, event); err != nil {
-				atomic.AddUint64(p.errorCount, 1)
-				slog.ErrorContext(p.ctx, "Usage worker error processing event", "error", err, "worker_id", id, "customer_id", event.CustomerID, "sub_item_id", event.SubscriptionItemID)
-			} else {
-				atomic.AddUint64(p.processedCount, 1)
-				slog.DebugContext(p.ctx, "Usage worker successfully processed event", "worker_id", id, "customer_id", event.CustomerID, "sub_item_id", event.SubscriptionItemID)
-			}
+			p.processEvent(id, event)
 		case <-p.ctx.Done():
-			slog.Info("Usage worker shutting down", "worker_id", id)
-			return
+			// Drain whatever is left in the queue instead of dropping it:
+			// these events are billing data (the old behavior silently lost
+			// every queued event on shutdown/restart).
+			drained := 0
+			for {
+				select {
+				case event := <-p.usageEvents:
+					p.processEvent(id, event)
+					drained++
+				default:
+					slog.Info("Usage worker shutting down", "worker_id", id, "drained_events", drained)
+					return
+				}
+			}
 		}
+	}
+}
+
+func (p *Pool) processEvent(id int, event contracts.UsageEvent) {
+	slog.DebugContext(p.ctx, "Usage worker processing event", "worker_id", id, "customer_id", event.CustomerID, "sub_item_id", event.SubscriptionItemID)
+	// Process with a detached context: the pool context is already cancelled
+	// during drain, but the event still deserves an honest attempt.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := p.processor.ProcessUsage(ctx, event); err != nil {
+		atomic.AddUint64(p.errorCount, 1)
+		slog.ErrorContext(ctx, "Usage worker error processing event", "error", err, "worker_id", id, "customer_id", event.CustomerID, "sub_item_id", event.SubscriptionItemID)
+	} else {
+		atomic.AddUint64(p.processedCount, 1)
+		slog.DebugContext(ctx, "Usage worker successfully processed event", "worker_id", id, "customer_id", event.CustomerID, "sub_item_id", event.SubscriptionItemID)
 	}
 }
 

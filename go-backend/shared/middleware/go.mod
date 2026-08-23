@@ -1,4 +1,4 @@
-module shared/middleware
+module github.com/stripe-ecosystem/shared/middleware
 
 go 1.23.0
 

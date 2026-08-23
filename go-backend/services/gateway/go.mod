@@ -9,8 +9,4 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 )
 
-replace shared/logger => ../../shared/logger
 
-replace shared/middleware => ../../shared/middleware
-
-replace gateway/config => ./config

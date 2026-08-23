@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"stripe-demo/shared/middleware"
+	"github.com/stripe-ecosystem/shared/middleware"
 	"syscall"
 	"time"
 

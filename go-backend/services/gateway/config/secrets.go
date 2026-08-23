@@ -2,8 +2,8 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type Secrets struct {
@@ -26,15 +26,18 @@ func LoadSecrets() (*Secrets, error) {
 	}, nil
 }
 
+// readSecret reads a secret either from a file (ENV_VAR_FILE, Docker-secret
+// style) or directly from the environment variable. File contents are
+// trimmed so trailing newlines (common with mounted secrets) don't leak into
+// the value.
 func readSecret(envVar string) (string, error) {
 	filePath := os.Getenv(envVar + "_FILE")
 	if filePath != "" {
-		data, err := ioutil.ReadFile(filePath)
+		data, err := os.ReadFile(filePath)
 		if err != nil {
 			return "", err
 		}
-		return string(data), nil
+		return strings.TrimSpace(string(data)), nil
 	}
-	val := os.Getenv(envVar)
-	return val, nil
+	return os.Getenv(envVar), nil
 }

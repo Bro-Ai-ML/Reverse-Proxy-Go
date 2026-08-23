@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"stripe-demo/shared/middleware"
+	"github.com/stripe-ecosystem/shared/middleware"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -160,7 +160,13 @@ func validateStruct(s interface{}) []string {
 	var errors []string
 	err := validate.Struct(s)
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
+		// Guard the assertion: validator can also return
+		// *validator.InvalidValidationError, which used to panic here.
+		validationErrs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			return []string{err.Error()}
+		}
+		for _, err := range validationErrs {
 			// Customize error messages if needed
 			errors = append(errors, fmt.Sprintf("Field '%s' failed on the '%s' tag", err.Field(), err.Tag()))
 		}
@@ -293,6 +299,14 @@ func main() {
 	cfg := setupConfig()
 	service := setupService(cfg)
 	router := setupRouter(service, logger, cfg)
-	server := &http.Server{Addr: cfg.Port, Handler: router}
+	// FIX: Addr was cfg.Port without the ":" prefix, so ListenAndServe always
+	// failed with "missing port in address" and the service could never start.
+	server := &http.Server{
+		Addr:         ":" + cfg.Port,
+		Handler:      router,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
 	runServer(server, cfg.ShutdownTimeout)
 }

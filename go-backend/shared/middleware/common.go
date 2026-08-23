@@ -30,16 +30,14 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// SecureHeadersMiddleware ajoute des headers de sécurité essentiels (CSP, X-Content-Type-Options, etc.)
+// SecureHeadersMiddleware adds the essential security headers (CSP, HSTS,
+// Referrer-Policy) on top of SecurityHeadersMiddleware. Prefer this one for
+// browser-facing endpoints.
 func SecureHeadersMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return SecurityHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy", "default-src 'self'")
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "DENY")
-		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-		// Ajoute d'autres headers si besoin
 		next.ServeHTTP(w, r)
 	})
 }

@@ -89,18 +89,35 @@ func (mb *MeteredBillingClient) executeProcessBatch(ctx context.Context, b batch
 	// or if retry.DefaultConfig() doesn't use a suitable default.
 
 	processingFunc := func(loopCtx context.Context) error {
-		_, err := mb.sc.V1SubscriptionItems.Retrieve(loopCtx, b.ID, &stripe.SubscriptionItemRetrieveParams{})
+		// Read current cumulative usage so we INCREMENT instead of overwriting:
+		// the previous implementation wrote only this batch's quantity to
+		// total_usage, silently discarding every previously reported unit.
+		item, err := mb.sc.V1SubscriptionItems.Retrieve(loopCtx, b.ID, &stripe.SubscriptionItemRetrieveParams{})
 		if err != nil {
 			log.Printf("GetSubscriptionItem attempt for %s (batch: %s): %v", b.ID, b.IdempotencyKey, err)
 			return err
 		}
+		currentUsage := int64(0)
+		if item.Metadata != nil {
+			if raw, exists := item.Metadata["total_usage"]; exists {
+				if _, serr := fmt.Sscanf(raw, "%d", &currentUsage); serr != nil {
+					log.Printf("Unparseable total_usage %q for %s, resetting from 0: %v", raw, b.ID, serr)
+					currentUsage = 0
+				}
+			}
+		}
+		newTotal := currentUsage + totalQuantity
+
 		updateParams := &stripe.SubscriptionItemUpdateParams{
 			Metadata: map[string]string{
 				"last_usage_update": fmt.Sprintf("%d", time.Now().Unix()),
-				"total_usage":       fmt.Sprintf("%d", totalQuantity),
+				"total_usage":       fmt.Sprintf("%d", newTotal),
 				"batch_id":          b.IdempotencyKey,
 			},
 		}
+		// Send the batch idempotency key to Stripe so retries of this exact
+		// batch cannot be double-counted.
+		updateParams.SetIdempotencyKey(b.IdempotencyKey)
 		_, err = mb.sc.V1SubscriptionItems.Update(loopCtx, b.ID, updateParams)
 		if err != nil {
 			log.Printf("UpdateSubscriptionItem attempt for %s (batch: %s): %v", b.ID, b.IdempotencyKey, err)
@@ -390,7 +407,9 @@ func (mb *MeteredBillingClient) GetUsageSummary(ctx context.Context, subscriptio
 	currentUsage := int64(0)
 	if item.Metadata != nil {
 		if usage, exists := item.Metadata["total_usage"]; exists {
-			fmt.Sscanf(usage, "%d", &currentUsage)
+			if _, err := fmt.Sscanf(usage, "%d", &currentUsage); err != nil {
+				return nil, fmt.Errorf("unparseable total_usage metadata %q: %w", usage, err)
+			}
 		}
 	}
 	return &UsageSummary{
@@ -474,7 +493,10 @@ func (mb *MeteredBillingClient) getCurrentPeriodUsage(ctx context.Context, subsc
 	if item.Metadata != nil {
 		if usage, exists := item.Metadata["total_usage"]; exists {
 			var currentUsage int64
-			fmt.Sscanf(usage, "%d", &currentUsage)
+			if _, err := fmt.Sscanf(usage, "%d", &currentUsage); err != nil {
+				log.Printf("Unparseable total_usage metadata %q for item %s: %v", usage, subscriptionItemID, err)
+				return 0
+			}
 			return currentUsage
 		}
 	}
