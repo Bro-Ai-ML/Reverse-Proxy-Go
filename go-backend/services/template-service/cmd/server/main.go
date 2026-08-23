@@ -13,10 +13,10 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	
-	"your-app/internal/config"
-	"your-app/internal/handler"
-	"your-app/internal/service"
-	"your-app/pkg/database"
+	"template-service/internal/config"
+	"template-service/internal/handler"
+	"template-service/internal/service"
+	"template-service/pkg/database"
 )
 
 func main() {

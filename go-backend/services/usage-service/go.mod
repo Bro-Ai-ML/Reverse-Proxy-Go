@@ -9,6 +9,7 @@ require (
 	github.com/stripe-ecosystem/shared/contracts v0.0.0
 	github.com/stripe-ecosystem/shared/stripe-client v0.0.0
 	golang.org/x/time v0.11.0
+	github.com/stripe-ecosystem/shared/middleware v0.0.0
 )
 
 require (
@@ -22,3 +23,5 @@ require (
 replace github.com/stripe-ecosystem/shared/contracts => ../../shared/contracts
 
 replace github.com/stripe-ecosystem/shared/stripe-client => ../../shared/stripe-client
+
+replace github.com/stripe-ecosystem/shared/middleware => ../../shared/middleware

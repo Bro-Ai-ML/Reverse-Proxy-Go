@@ -9,7 +9,7 @@ import (
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/mock"
     
-    "your-app/internal/handler"
+    "template-service/internal/handler"
 )
 
 type MockService struct {

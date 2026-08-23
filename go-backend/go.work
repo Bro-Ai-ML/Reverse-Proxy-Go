@@ -9,5 +9,8 @@ use (
 	./services/usage-service
 	./services/user-service
 	./services/webhook-service
+	./shared/contracts
+	./shared/logger
+	./shared/middleware
 	./shared/stripe-client
 )
