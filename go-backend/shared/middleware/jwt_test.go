@@ -3,12 +3,23 @@ package middleware
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 )
+
+// TestMain configures a deterministic JWT secret for the package: the
+// middleware loads it lazily from the environment and fails closed when it
+// is missing.
+func TestMain(m *testing.M) {
+	os.Setenv("JWT_SECRET", "unit-test-secret")
+	code := m.Run()
+	os.Unsetenv("JWT_SECRET")
+	os.Exit(code)
+}
 
 func TestJWTMiddleware(t *testing.T) {
 	tests := []struct {
@@ -101,6 +112,7 @@ func TestJWTMiddleware(t *testing.T) {
 
 // generateTestToken generates a JWT token for testing
 func generateTestToken(t *testing.T, userID string, roles []string, expiresAt time.Time) string {
+	loadJWTSecret()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
 		"roles":   roles,

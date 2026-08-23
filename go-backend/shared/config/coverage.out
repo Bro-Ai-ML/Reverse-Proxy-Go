@@ -1,7 +1,0 @@
-mode: set
-stripe-demo/shared/config/config.go:14.20,16.16 2 1
-stripe-demo/shared/config/config.go:16.16,18.3 1 1
-stripe-demo/shared/config/config.go:20.2,22.49 2 1
-stripe-demo/shared/config/config.go:22.49,23.44 1 1
-stripe-demo/shared/config/config.go:23.44,25.4 1 1
-stripe-demo/shared/config/config.go:28.2,31.3 1 1

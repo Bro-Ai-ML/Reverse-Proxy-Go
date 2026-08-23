@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	appctx "stripe-demo/services/user-service/internal/context"
+
 	"github.com/rs/zerolog"
 )
 
@@ -27,7 +29,7 @@ func LoggingMiddleware(logger zerolog.Logger) func(http.Handler) http.Handler {
 			}
 
 			// Ajouter l'ID utilisateur si authentifié
-			if userID, ok := r.Context().Value("user_id").(string); ok && userID != "" {
+			if userID, ok := appctx.GetUserID(r.Context()); ok && userID != "" {
 				reqLogger = reqLogger.With().Str("user_id", userID).Logger()
 			}
 

@@ -63,12 +63,22 @@ func NewRedisUsageStore(redisURL string) (*RedisUsageStore, error) {
 	return &RedisUsageStore{client: client}, nil
 }
 
+// usageKeyTTL bounds how long usage hashes live in Redis. Without a TTL the
+// hashes grew without bound (memory exhaustion). 8 days covers the 7-day
+// rolling window with margin.
+const usageKeyTTL = 8 * 24 * time.Hour
+
 // Add increments usage for a customer at a given timestamp (hour granularity).
 func (r *RedisUsageStore) Add(customerID string, ts time.Time) error {
 	ctx := context.Background()
 	hour := ts.Truncate(time.Hour).Format(time.RFC3339)
 	key := fmt.Sprintf("usage:%s", customerID)
-	return r.client.HIncrBy(ctx, key, hour, 1).Err()
+	if err := r.client.HIncrBy(ctx, key, hour, 1).Err(); err != nil {
+		return err
+	}
+	// Refresh the TTL on every write so active customers' data survives while
+	// idle ones are eventually evicted.
+	return r.client.Expire(ctx, key, usageKeyTTL).Err()
 }
 
 // GetRollingAverage returns the rolling average (calls/hour) over the last 7 days for a customer.
@@ -89,7 +99,9 @@ func (r *RedisUsageStore) GetRollingAverage(customerID string, now time.Time) (f
 		}
 		if hour.After(start) && !hour.After(now) {
 			var count int
-			fmt.Sscanf(countStr, "%d", &count)
+			if _, err := fmt.Sscanf(countStr, "%d", &count); err != nil {
+				continue // skip malformed counters
+			}
 			calls += count
 			hours++
 		}
@@ -151,15 +163,19 @@ func setupRouter(store *RedisUsageStore) *mux.Router {
 	}).Methods("GET")
 
 	r.HandleFunc("/event", func(w http.ResponseWriter, r *http.Request) {
+		// Bound the request body: /event is unauthenticated.
+		r.Body = http.MaxBytesReader(w, r.Body, 64*1024)
 		var evt Event
 		if err := json.NewDecoder(r.Body).Decode(&evt); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(`{"error":"invalid event"}`))
 			return
 		}
-		if evt.CustomerID == "" || evt.Timestamp.IsZero() {
+		// Reject malformed/oversized customer ids: an attacker could otherwise
+		// create unlimited Redis keys and exhaust memory.
+		if evt.CustomerID == "" || len(evt.CustomerID) > 128 || !isValidCustomerID(evt.CustomerID) || evt.Timestamp.IsZero() {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error":"missing customer_id or timestamp"}`))
+			w.Write([]byte(`{"error":"missing or invalid customer_id or timestamp"}`))
 			return
 		}
 		if err := store.Add(evt.CustomerID, evt.Timestamp); err != nil {
@@ -173,6 +189,53 @@ func setupRouter(store *RedisUsageStore) *mux.Router {
 	return r
 }
 
+// isValidCustomerID restricts ids to a conservative charset so user input
+// can never turn into surprising Redis keys.
+func isValidCustomerID(id string) bool {
+	for _, c := range id {
+		switch {
+		case c >= 'a' && c <= 'z',
+			c >= 'A' && c <= 'Z',
+			c >= '0' && c <= '9',
+			c == '-', c == '_':
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// scanUsageKeys lists usage:* keys with SCAN (the previous implementation
+// used KEYS, which is O(N) and blocks Redis on every call).
+func scanUsageKeys(ctx context.Context, client *redis.Client) ([]string, error) {
+	var keys []string
+	iter := client.Scan(ctx, 0, "usage:*", 200).Iterator()
+	for iter.Next(ctx) {
+		keys = append(keys, iter.Val())
+	}
+	return keys, iter.Err()
+}
+
+// pruneOldHours removes hourly fields older than the retention window so
+// long-lived keys stay bounded.
+func (r *RedisUsageStore) pruneOldHours(ctx context.Context, key string, now time.Time) {
+	entries, err := r.client.HGetAll(ctx, key).Result()
+	if err != nil {
+		return
+	}
+	cutoff := now.Add(-usageKeyTTL)
+	var stale []string
+	for hourStr := range entries {
+		hour, err := time.Parse(time.RFC3339, hourStr)
+		if err != nil || hour.Before(cutoff) {
+			stale = append(stale, hourStr)
+		}
+	}
+	if len(stale) > 0 {
+		r.client.HDel(ctx, key, stale...)
+	}
+}
+
 func startRollingAverageJob(store *RedisUsageStore, interval time.Duration, stopCh <-chan struct{}) {
 	go func() {
 		ticker := time.NewTicker(interval)
@@ -181,15 +244,15 @@ func startRollingAverageJob(store *RedisUsageStore, interval time.Duration, stop
 			select {
 			case <-ticker.C:
 				now := time.Now()
-				// For demo: list all keys matching usage:*
 				ctx := context.Background()
-				keys, err := store.client.Keys(ctx, "usage:*").Result()
+				keys, err := scanUsageKeys(ctx, store.client)
 				if err != nil {
 					slog.Error("Failed to list usage keys", "error", err)
 					continue
 				}
 				for _, key := range keys {
 					customerID := key[len("usage:"):]
+					store.pruneOldHours(ctx, key, now)
 					avg, err := store.GetRollingAverage(customerID, now)
 					if err != nil {
 						slog.Error("Failed to compute rolling average", "customer_id", customerID, "error", err)

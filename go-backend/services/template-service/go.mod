@@ -1,4 +1,4 @@
-module your-app
+module template-service
 
 go 1.21
 

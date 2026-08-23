@@ -1,21 +1,30 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog"
 
 	"auth-service/internal/config"
 	"auth-service/internal/service"
 )
 
+type contextKey string
+
+// userIDContextKey is the typed context key under which AuthMiddleware stores
+// the authenticated user id. (Previously a bare string key was used, which
+// risks collisions across packages.)
+const userIDContextKey contextKey = "userID"
+
 type Handler struct {
 	service service.Service
-	jwtSvc  *JWTService
+	jwtSvc  JWTService
 	log     *zerolog.Logger
 }
 
@@ -30,38 +39,90 @@ func New(svc service.Service, log *zerolog.Logger, jwtCfg config.JWTConfig) *Han
 
 // RegisterRequest represents the request body for user registration
 type RegisterRequest struct {
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=8"`
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name" validate:"required"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 // LoginRequest represents the request body for user login
 type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // RefreshTokenRequest represents the request body for token refresh
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // UpdateUserRequest represents the request body for updating user information
 type UpdateUserRequest struct {
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name" validate:"required"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
-// ChangePasswordRequest represents the request body for changing password
+// ChangePasswordRequest represents the request body for changing a password
 type ChangePasswordRequest struct {
-	CurrentPassword string `json:"current_password" validate:"required"`
-	NewPassword     string `json:"new_password" validate:"required,min=8"`
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
 }
 
 // ErrorResponse represents a standardized error response
 type ErrorResponse struct {
 	Error string `json:"error"`
+}
+
+// --- Lightweight request validation (dependency-free) ---
+
+func validEmail(email string) bool {
+	email = strings.TrimSpace(email)
+	at := strings.Index(email, "@")
+	if at <= 0 || at == len(email)-1 {
+		return false
+	}
+	dot := strings.LastIndex(email[at+1:], ".")
+	return dot > 0 && dot < len(email[at+1:])-1
+}
+
+func (req RegisterRequest) validate() error {
+	if !validEmail(req.Email) {
+		return errors.New("invalid email")
+	}
+	if len(req.Password) < 8 {
+		return errors.New("password must be at least 8 characters")
+	}
+	if strings.TrimSpace(req.FirstName) == "" || strings.TrimSpace(req.LastName) == "" {
+		return errors.New("first_name and last_name are required")
+	}
+	return nil
+}
+
+func (req LoginRequest) validate() error {
+	if !validEmail(req.Email) {
+		return errors.New("invalid email")
+	}
+	if req.Password == "" {
+		return errors.New("password is required")
+	}
+	return nil
+}
+
+func (req UpdateUserRequest) validate() error {
+	if strings.TrimSpace(req.FirstName) == "" || strings.TrimSpace(req.LastName) == "" {
+		return errors.New("first_name and last_name are required")
+	}
+	return nil
+}
+
+func (req ChangePasswordRequest) validate() error {
+	if req.CurrentPassword == "" {
+		return errors.New("current_password is required")
+	}
+	if len(req.NewPassword) < 8 {
+		return errors.New("new_password must be at least 8 characters")
+	}
+	return nil
 }
 
 // HealthCheck handles health check requests
@@ -83,13 +144,11 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate request
-	if err := validate.Struct(req); err != nil {
+	if err := req.validate(); err != nil {
 		h.respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// Call service
 	resp, err := h.service.Register(r.Context(), req.Email, req.Password, req.FirstName, req.LastName)
 	if err != nil {
 		h.log.Error().Err(err).Msg("Registration failed")
@@ -112,13 +171,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate request
-	if err := validate.Struct(req); err != nil {
+	if err := req.validate(); err != nil {
 		h.respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// Call service
 	resp, err := h.service.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		h.log.Error().Err(err).Msg("Login failed")
@@ -141,13 +198,11 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate request
-	if err := validate.Struct(req); err != nil {
-		h.respondWithError(w, http.StatusBadRequest, err.Error())
+	if strings.TrimSpace(req.RefreshToken) == "" {
+		h.respondWithError(w, http.StatusBadRequest, "refresh_token is required")
 		return
 	}
 
-	// Call service
 	tokens, err := h.service.RefreshToken(r.Context(), req.RefreshToken)
 	if err != nil {
 		h.log.Error().Err(err).Msg("Token refresh failed")
@@ -162,9 +217,36 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	h.respondWithJSON(w, http.StatusOK, tokens)
 }
 
+// VerifyToken validates the bearer token on the request and echoes the
+// claims. Useful for other services and smoke tests.
+func (h *Handler) VerifyToken(w http.ResponseWriter, r *http.Request) {
+	token, ok := bearerToken(r)
+	if !ok {
+		h.respondWithError(w, http.StatusUnauthorized, "Invalid authorization header format")
+		return
+	}
+
+	claims, err := h.jwtSvc.ValidateToken(token, AccessToken)
+	if err != nil {
+		h.respondWithError(w, http.StatusUnauthorized, "Invalid or expired token")
+		return
+	}
+
+	h.respondWithJSON(w, http.StatusOK, map[string]interface{}{
+		"valid":   true,
+		"user_id": claims.UserID,
+		"email":   claims.Email,
+		"type":    claims.Type,
+	})
+}
+
 // GetCurrentUser gets the current authenticated user
 func (h *Handler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID").(string)
+	userID, ok := userIDFromContext(r)
+	if !ok {
+		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
 
 	user, err := h.service.GetUserByID(r.Context(), userID)
 	if err != nil {
@@ -178,7 +260,11 @@ func (h *Handler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser updates the current user's information
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID").(string)
+	userID, ok := userIDFromContext(r)
+	if !ok {
+		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
 
 	var req UpdateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -186,13 +272,11 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate request
-	if err := validate.Struct(req); err != nil {
+	if err := req.validate(); err != nil {
 		h.respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// Call service
 	if err := h.service.UpdateUser(r.Context(), userID, req.FirstName, req.LastName); err != nil {
 		h.log.Error().Err(err).Msg("Failed to update user")
 		statusCode := http.StatusInternalServerError
@@ -208,7 +292,11 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // ChangePassword changes the current user's password
 func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID").(string)
+	userID, ok := userIDFromContext(r)
+	if !ok {
+		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
 
 	var req ChangePasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -216,13 +304,11 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate request
-	if err := validate.Struct(req); err != nil {
+	if err := req.validate(); err != nil {
 		h.respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// Call service
 	if err := h.service.ChangePassword(r.Context(), userID, req.CurrentPassword, req.NewPassword); err != nil {
 		h.log.Error().Err(err).Msg("Failed to change password")
 		statusCode := http.StatusInternalServerError
@@ -239,30 +325,41 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	h.respondWithJSON(w, http.StatusOK, map[string]string{"message": "Password changed successfully"})
 }
 
+// bearerToken extracts a Bearer token from the Authorization header.
+func bearerToken(r *http.Request) (string, bool) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", false
+	}
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || !strings.EqualFold(tokenParts[0], "bearer") {
+		return "", false
+	}
+	return tokenParts[1], true
+}
+
+// userIDFromContext reads the authenticated user id set by AuthMiddleware.
+func userIDFromContext(r *http.Request) (string, bool) {
+	userID, ok := r.Context().Value(userIDContextKey).(string)
+	return userID, ok && userID != ""
+}
+
 // AuthMiddleware is a middleware to authenticate requests
 func (h *Handler) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			h.respondWithError(w, http.StatusUnauthorized, "Authorization header is required")
-			return
-		}
-
-		tokenParts := strings.Split(authHeader, " ")
-		if len(tokenParts) != 2 || strings.ToLower(tokenParts[0]) != "bearer" {
+		token, ok := bearerToken(r)
+		if !ok {
 			h.respondWithError(w, http.StatusUnauthorized, "Invalid authorization header format")
 			return
 		}
 
-		token := tokenParts[1]
 		claims, err := h.jwtSvc.ValidateToken(token, AccessToken)
 		if err != nil {
 			h.respondWithError(w, http.StatusUnauthorized, "Invalid or expired token")
 			return
 		}
 
-		// Add user ID to context
-		ctx := context.WithValue(r.Context(), "userID", claims.UserID)
+		ctx := context.WithValue(r.Context(), userIDContextKey, claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -290,7 +387,7 @@ type JWTService interface {
 	ValidateToken(tokenString string, expectedType TokenType) (*Claims, error)
 }
 
-// JWTService implementation
+// jwtService is the HS256 implementation of JWTService.
 type jwtService struct {
 	secretKey       string
 	accessTokenTTL  time.Duration
@@ -328,7 +425,7 @@ func (s *jwtService) ValidateToken(tokenString string, expectedType TokenType) (
 			return nil, errors.New("unexpected signing method")
 		}
 		return []byte(s.secretKey), nil
-	})
+	}, jwt.WithValidMethods([]string{"HS256"}))
 
 	if err != nil {
 		return nil, err
@@ -374,7 +471,7 @@ type TokenType string
 const (
 	// AccessToken is a short-lived token for API access
 	AccessToken TokenType = "access"
-	// RefreshToken is a long-lived token for refreshing access tokens
+	// RefreshToken is a long-lived token used to refresh access tokens
 	RefreshToken TokenType = "refresh"
 )
 

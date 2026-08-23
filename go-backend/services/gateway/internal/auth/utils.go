@@ -22,7 +22,11 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 
 func generateID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		// crypto/rand should never fail; fall back to a time-based id rather
+		// than silently returning an empty identifier.
+		return hex.EncodeToString([]byte(time.Now().UTC().String()))[:32]
+	}
 	return hex.EncodeToString(b)
 }
 
@@ -31,7 +35,7 @@ func hashToken(token string) string {
 	return hex.EncodeToString(h[:])
 }
 
-func generateRefreshToken(store RefreshTokenStore, userID string, duration time.Duration) (*RefreshToken, error) {
+func generateRefreshToken(store RefreshTokenStore, userID string, roles []string, duration time.Duration) (*RefreshToken, error) {
 	token, tokenHash, err := generateToken()
 	if err != nil {
 		return nil, err
@@ -39,6 +43,7 @@ func generateRefreshToken(store RefreshTokenStore, userID string, duration time.
 	rt := &RefreshToken{
 		ID:         generateID(),
 		UserID:     userID,
+		Roles:      roles,
 		Token:      token,
 		TokenHash:  tokenHash,
 		ExpiresAt:  time.Now().Add(duration),

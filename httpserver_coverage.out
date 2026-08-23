@@ -1,8 +1,0 @@
-mode: set
-stripe-demo/shared/httpserver/server.go:23.52,34.2 1 1
-stripe-demo/shared/httpserver/server.go:36.32,37.12 1 1
-stripe-demo/shared/httpserver/server.go:37.12,40.61 2 1
-stripe-demo/shared/httpserver/server.go:40.61,43.4 2 0
-stripe-demo/shared/httpserver/server.go:46.2,55.40 7 1
-stripe-demo/shared/httpserver/server.go:55.40,58.3 2 0
-stripe-demo/shared/httpserver/server.go:60.2,62.12 2 1

@@ -2,6 +2,8 @@ package stripeclient
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"log"
 
 	"github.com/stripe/stripe-go/v82"
@@ -9,13 +11,26 @@ import (
 
 // Client wraps Stripe operations using an initialized Stripe SDK client.
 type Client struct {
-	sc *stripe.Client // Embed the Stripe Go SDK client
+	sc *stripe.Client // Stripe Go SDK client
 }
 
 // New creates a new Stripe client.
 func New(secretKey string) *Client {
 	sc := stripe.NewClient(secretKey)
 	return &Client{sc: sc}
+}
+
+// newIdempotencyKey generates a cryptographically random idempotency key.
+// Stripe deduplicates mutating requests carrying the same key for 24h, which
+// makes retries of create calls safe (no duplicate customers/charges).
+func newIdempotencyKey() string {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		// crypto/rand failures are exceptional; fall back to a fixed marker
+		// so the call still proceeds (Stripe will treat it as best-effort).
+		return "fallback-key"
+	}
+	return hex.EncodeToString(b)
 }
 
 // CreateCustomer creates a new Stripe customer
@@ -25,6 +40,7 @@ func (c *Client) CreateCustomer(ctx context.Context, email, name string, metadat
 		Name:     stripe.String(name),
 		Metadata: metadata,
 	}
+	params.SetIdempotencyKey(newIdempotencyKey())
 	return c.sc.V1Customers.Create(ctx, params)
 }
 
@@ -41,6 +57,7 @@ func (c *Client) CreatePaymentIntent(ctx context.Context, amount int64, currency
 		Customer: stripe.String(customerID),
 		Metadata: metadata,
 	}
+	params.SetIdempotencyKey(newIdempotencyKey())
 	return c.sc.V1PaymentIntents.Create(ctx, params)
 }
 
@@ -58,6 +75,7 @@ func (c *Client) CreateSubscription(ctx context.Context, customerID, priceID str
 		},
 		Metadata: metadata,
 	}
+	params.SetIdempotencyKey(newIdempotencyKey())
 	return c.sc.V1Subscriptions.Create(ctx, params)
 }
 

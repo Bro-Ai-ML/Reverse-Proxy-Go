@@ -56,7 +56,10 @@ func (s *Service) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		slog.WarnContext(ctx, "Webhook signature verification failed", "error", err, "remote_addr", r.RemoteAddr)
-		http.Error(w, "Signature verification failed: "+err.Error(), http.StatusBadRequest)
+		// Do not echo the internal verification error back to the caller: it
+		// leaks implementation details useful to an attacker probing the
+		// signature scheme.
+		http.Error(w, "Signature verification failed", http.StatusBadRequest)
 		return
 	}
 

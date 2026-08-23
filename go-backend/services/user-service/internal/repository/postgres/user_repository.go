@@ -285,39 +285,75 @@ func (r *UserRepository) GetUserRoles(ctx context.Context, userID string) ([]str
 	return roles, nil
 }
 
-// AddUserRole adds a role to a user
+// AddUserRole adds a role to a user. The read-modify-write happens inside a
+// transaction with SELECT ... FOR UPDATE: the previous lock-free version
+// could lose concurrent role updates.
 func (r *UserRepository) AddUserRole(ctx context.Context, userID, role string) error {
-	roles, err := r.GetUserRoles(ctx, userID)
-	if err != nil {
-		return err
-	}
-	for _, r := range roles {
-		if r == role {
-			return nil
+	return r.withLockedRoles(ctx, userID, func(roles model.StringArray) (model.StringArray, bool) {
+		for _, existing := range roles {
+			if existing == role {
+				return roles, false // already present, nothing to write
+			}
 		}
-	}
-	roles = append(roles, role)
-	return r.updateUserRoles(ctx, userID, roles)
+		return append(roles, role), true
+	})
 }
 
-// RemoveUserRole removes a role from a user
+// RemoveUserRole removes a role from a user (transactional, see AddUserRole).
 func (r *UserRepository) RemoveUserRole(ctx context.Context, userID, role string) error {
-	roles, err := r.GetUserRoles(ctx, userID)
+	return r.withLockedRoles(ctx, userID, func(roles model.StringArray) (model.StringArray, bool) {
+		found := false
+		for i, existing := range roles {
+			if existing == role {
+				roles = append(roles[:i], roles[i+1:]...)
+				found = true
+				break
+			}
+		}
+		return roles, found
+	})
+}
+
+// withLockedRoles locks the user row, applies mutate to the roles and writes
+// them back atomically. mutate returns the new roles and whether a write is
+// needed.
+func (r *UserRepository) withLockedRoles(ctx context.Context, userID string, mutate func(model.StringArray) (model.StringArray, bool)) error {
+	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	found := false
-	for i, r := range roles {
-		if r == role {
-			roles = append(roles[:i], roles[i+1:]...)
-			found = true
-			break
+	defer func() {
+		if p := recover(); p != nil {
+			_ = tx.Rollback()
+			panic(p)
+		}
+	}()
+
+	var roles model.StringArray
+	err = tx.GetContext(ctx, &roles,
+		`SELECT roles FROM users WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`, userID)
+	if err != nil {
+		_ = tx.Rollback()
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.ErrUserNotFound
+		}
+		return fmt.Errorf("failed to lock user roles: %w", err)
+	}
+
+	newRoles, changed := mutate(roles)
+	if changed {
+		if _, err := tx.ExecContext(ctx,
+			`UPDATE users SET roles = $1, updated_at = NOW() WHERE id = $2 AND deleted_at IS NULL`,
+			newRoles, userID); err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("failed to update user roles: %w", err)
 		}
 	}
-	if !found {
-		return nil
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit roles transaction: %w", err)
 	}
-	return r.updateUserRoles(ctx, userID, roles)
+	return nil
 }
 
 // Helper function to build WHERE clause with multiple conditions

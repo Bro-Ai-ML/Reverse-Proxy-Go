@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"stripe-demo/services/webhook-service/internal/config"
 	"stripe-demo/services/webhook-service/internal/handlers"
-	"stripe-demo/shared/middleware"
+	"github.com/stripe-ecosystem/shared/middleware"
 )
 
 func main() {

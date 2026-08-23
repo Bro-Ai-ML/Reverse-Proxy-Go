@@ -8,6 +8,18 @@ import (
 	"time"
 )
 
+const (
+	// maxBatchAttempts is how many times a failed batch is retried before it
+	// is dead-lettered (logged and dropped). Failed batches used to be
+	// silently discarded after a single log line, which meant billing/usage
+	// data vanished whenever the downstream API was down.
+	maxBatchAttempts = 5
+	// retryBaseDelay is the initial backoff before reprocessing a failed
+	// batch; it doubles on every subsequent attempt (capped by retryMaxDelay).
+	retryBaseDelay = 2 * time.Second
+	retryMaxDelay  = 30 * time.Second
+)
+
 // Manager orchestrates the batching of metrics.
 // It collects metrics, groups them by an ID (e.g., subscription item ID),
 // and flushes them either when a batch reaches a certain size or after a specified interval.
@@ -21,7 +33,8 @@ type Manager struct {
 	processor Processor       // Interface responsible for processing a formed batch.
 	ctx       context.Context // Context for the manager's lifecycle; cancellation stops the manager.
 	done      chan struct{}   // Closed to signal the flushLoop goroutine to terminate.
-	wg        sync.WaitGroup  // Used to wait for the flushLoop goroutine to exit gracefully.
+	stopOnce  sync.Once       // Makes Stop() idempotent (double-close used to panic).
+	wg        sync.WaitGroup  // Waits for flushLoop AND all in-flight async flush/retry goroutines.
 }
 
 // Metric represents a single data point to be batched.
@@ -46,7 +59,7 @@ type Batch struct {
 	Timestamp      time.Time
 }
 
-// Processor is an interface that defines how a batch of metrics should be processed.
+// Processor is an interface that defines how a batch is processed.
 // The Manager calls ProcessBatch when a batch is ready.
 type Processor interface {
 	ProcessBatch(ctx context.Context, batch Batch) error
@@ -56,7 +69,7 @@ type Processor interface {
 // ctx: Parent context for the manager's lifecycle. If cancelled, the manager stops.
 // size: The number of metrics per ID to accumulate before flushing.
 // interval: The time interval at which to flush all pending batches.
-// processor: The Processor implementation that will handle the actual batch processing.
+// processor: The Processor implementation used to process a formed batch.
 func NewManager(ctx context.Context, size int, interval time.Duration, processor Processor) *Manager {
 	return &Manager{
 		buffer:    make(map[string][]Metric),
@@ -107,10 +120,11 @@ func (m *Manager) Add(id string, metric Metric) error {
 		m.mutex.Unlock()
 
 		// Perform the flush in a goroutine to avoid blocking the Add call.
-		// The processing error is logged within doProcessBatch.
+		// The goroutine is tracked so Stop() can wait for it.
+		m.wg.Add(1)
 		go func() {
-			if err := m.doProcessBatch(id, metricsToFlush); err != nil {
-				// Log error from async flush; Add call has already returned.
+			defer m.wg.Done()
+			if err := m.processBatchWithRetry(id, metricsToFlush, 1); err != nil {
 				log.Printf("Error during async flush triggered by Add for ID %s: %v", id, err)
 			}
 		}()
@@ -120,15 +134,33 @@ func (m *Manager) Add(id string, metric Metric) error {
 	return nil
 }
 
-// doProcessBatch processes a given slice of metrics for a specific ID.
-// It constructs a Batch and sends it to the configured Processor.
-// This method is called by Add (for size-triggered flushes) and FlushAll (for interval/shutdown flushes).
-// Errors from the processor are logged and returned.
-func (m *Manager) doProcessBatch(id string, metrics []Metric) error {
+// flushOne snapshots and processes the buffered metrics for a single ID.
+func (m *Manager) flushOne(id string, attempt int) {
+	m.mutex.Lock()
+	metrics := m.buffer[id]
 	if len(metrics) == 0 {
-		return nil // Nothing to process.
+		m.mutex.Unlock()
+		return
 	}
-	// Create a unique idempotency key for the batch.
+	snapshot := make([]Metric, len(metrics))
+	copy(snapshot, metrics)
+	delete(m.buffer, id)
+	m.mutex.Unlock()
+
+	if err := m.processBatchWithRetry(id, snapshot, attempt); err != nil {
+		log.Printf("Error processing batch for ID %s (attempt %d): %v", id, attempt, err)
+	}
+}
+
+// processBatchWithRetry processes a batch and, on failure, re-enqueues it for
+// a bounded number of retries with exponential backoff instead of dropping
+// the data. Once attempts are exhausted the batch is dead-lettered (logged
+// with its idempotency key so operators can reconcile manually).
+func (m *Manager) processBatchWithRetry(id string, metrics []Metric, attempt int) error {
+	if len(metrics) == 0 {
+		return nil
+	}
+
 	batch := Batch{
 		ID:             id,
 		Metrics:        metrics,
@@ -136,20 +168,52 @@ func (m *Manager) doProcessBatch(id string, metrics []Metric) error {
 		Timestamp:      time.Now(),
 	}
 
-	// Process the batch using the provided processor.
-	// The processor is responsible for its own retry logic if needed.
-	err := m.processor.ProcessBatch(m.ctx, batch) // Pass manager's context.
-	if err != nil {
-		log.Printf("Error processing batch for ID %s (idempotency key: %s): %v",
-			id, batch.IdempotencyKey, err)
-		return err // Propagate error for potential upstream handling.
+	err := m.processor.ProcessBatch(m.ctx, batch)
+	if err == nil {
+		log.Printf("Successfully processed batch for ID %s (idempotency key: %s, %d metrics)",
+			id, batch.IdempotencyKey, len(metrics))
+		return nil
 	}
-	log.Printf("Successfully processed batch for ID %s (idempotency key: %s, %d metrics)",
-		id, batch.IdempotencyKey, len(metrics))
+
+	log.Printf("Error processing batch for ID %s (idempotency key: %s, attempt %d/%d): %v",
+		id, batch.IdempotencyKey, attempt, maxBatchAttempts, err)
+
+	if attempt >= maxBatchAttempts || m.ctx.Err() != nil {
+		// Dead letter: give up after the bounded number of attempts (or when
+		// shutting down) but log loudly with the key so data can be recovered.
+		log.Printf("🚨 DEAD-LETTER: dropping batch for ID %s (idempotency key: %s, %d metrics) after %d attempts: %v",
+			id, batch.IdempotencyKey, len(metrics), attempt, err)
+		return err
+	}
+
+	// Re-enqueue the metrics and schedule a retry with backoff.
+	m.mutex.Lock()
+	m.buffer[id] = append(metrics, m.buffer[id]...) // keep retry data first
+	m.mutex.Unlock()
+
+	delay := retryBaseDelay << (attempt - 1)
+	if delay > retryMaxDelay {
+		delay = retryMaxDelay
+	}
+
+	m.wg.Add(1)
+	go func() {
+		defer m.wg.Done()
+		select {
+		case <-time.After(delay):
+			m.flushOne(id, attempt+1)
+		case <-m.ctx.Done():
+			// Shutting down: attempt one last synchronous flush so we do not
+			// lose data, then exit.
+			m.flushOne(id, attempt+1)
+		case <-m.done:
+			m.flushOne(id, attempt+1)
+		}
+	}()
 	return nil
 }
 
-// flushLoop is the main goroutine for the Manager.
+// flushLoop is the main goroutine of the Manager.
 // It periodically calls FlushAll based on the configured interval.
 // It also listens for context cancellation (from parent context) or a signal on m.done
 // to trigger a final FlushAll and then terminate.
@@ -176,7 +240,7 @@ func (m *Manager) flushLoop() {
 }
 
 // FlushAll flushes all currently buffered metrics for all IDs.
-// It iterates over a snapshot of the buffer, calling doProcessBatch for each ID.
+// It iterates over a snapshot of the buffer, calling the processor for each ID.
 // This is typically called by the interval timer in flushLoop or during shutdown.
 func (m *Manager) FlushAll() {
 	m.mutex.Lock()
@@ -197,8 +261,8 @@ func (m *Manager) FlushAll() {
 	// Process the snapshot without holding the main lock.
 	log.Printf("FlushAll: Processing %d distinct IDs from buffer snapshot.", len(batchesToProcess))
 	for id, metrics := range batchesToProcess {
-		if err := m.doProcessBatch(id, metrics); err != nil {
-			// Error is already logged in doProcessBatch. Continue flushing other batches.
+		if err := m.processBatchWithRetry(id, metrics, 1); err != nil {
+			// Errors are logged inside processBatchWithRetry; continue with other IDs.
 			log.Printf("FlushAll: Error during processing for ID %s (error logged previously). Will continue with other IDs.", id)
 		}
 	}
@@ -206,10 +270,13 @@ func (m *Manager) FlushAll() {
 }
 
 // Stop signals the Manager to flush all pending batches and then shut down its goroutines.
-// It blocks until the flushLoop goroutine has completed.
+// It blocks until the flushLoop goroutine (and any in-flight retries) has completed.
+// Stop is idempotent: calling it more than once is safe.
 func (m *Manager) Stop() {
 	log.Printf("Batch manager: Stop() called, signaling flush and shutdown.")
-	close(m.done) // Signal flushLoop to exit.
-	m.wg.Wait()   // Wait for flushLoop to complete its final FlushAll and terminate.
+	m.stopOnce.Do(func() {
+		close(m.done) // Signal flushLoop to exit.
+	})
+	m.wg.Wait() // Wait for flushLoop and in-flight async flushes/retries.
 	log.Printf("Batch manager: Shutdown complete.")
 }
