@@ -1,0 +1,31 @@
+# Binaries (services are built in CI/Docker, never committed)
+/stripe-demo
+/webhook-service
+/go-backend/services/gateway/gateway
+/go-backend/services/customer-service/customer-service
+/go-backend/services/payment-service/payment-service
+/go-backend/services/usage-service/usage-service
+/go-backend/services/webhook-service/webhook-service
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test/coverage artifacts
+*.out
+coverage.html
+*.test
+
+# Secrets & local env
+*.pem
+.env
+.env.*
+!.env.example
+
+# Editor/OS
+.idea/
+.vscode/
+.DS_Store
+
+# Go workspace caches
+vendor/

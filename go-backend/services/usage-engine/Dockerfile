@@ -1,14 +1,14 @@
-# syntax=docker/dockerfile:1
-# Build context is project root for workspace compatibility
+# Build from the go-backend root:
+#   docker build -f services/usage-engine/Dockerfile .
 FROM golang:1.24-alpine AS builder
-WORKDIR /app
-COPY go.mod go.sum ./
-COPY services/usage-engine/. .
-RUN go mod download
-RUN CGO_ENABLED=0 go build -o usage-engine main.go
+ENV GOWORK=off
+WORKDIR /src
+COPY . .
+WORKDIR /src/services/usage-engine
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/usage-engine .
 
 FROM alpine:latest
-WORKDIR /app
-COPY --from=builder /app/usage-engine .
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /out/usage-engine /app/usage-engine
 EXPOSE 8082
-ENTRYPOINT ["./usage-engine"] 
+ENTRYPOINT ["/app/usage-engine"]
