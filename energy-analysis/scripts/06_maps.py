@@ -13,6 +13,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import polars as pl  # noqa: E402
+from matplotlib.axes import Axes  # noqa: E402
 
 from energyeu.config import ACTIVE_STATUSES  # noqa: E402
 from energyeu.load import OUT_DIR, ensure_processed, europe_grid, load_gtd  # noqa: E402
@@ -52,7 +53,7 @@ def load_country_geoms() -> list[tuple[str, list]]:
     return out
 
 
-def draw_borders(ax: plt.Axes) -> None:
+def draw_borders(ax: Axes) -> None:
     for _iso, polys in load_country_geoms():
         for poly in polys:
             for ring in poly:

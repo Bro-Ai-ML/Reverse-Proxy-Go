@@ -75,12 +75,12 @@ def q9_cascade(feat: pl.DataFrame) -> pl.DataFrame:
     dépasser 1 écart-type sur chaque axe via une gaussienne multivariée.
     """
     cols = ["hydro_share", "fossil_share", "var_share"]
-    X = feat.select(cols).to_numpy()
+    X = np.asarray(feat.select(cols).to_numpy(), dtype=np.float64)
     Xz = stats.zscore(X, nan_policy="omit")
-    Xz = np.nan_to_num(Xz, nan=0.0)
+    Xz = np.nan_to_num(np.asarray(Xz, dtype=np.float64), nan=0.0)
     mu = np.zeros(3)
     cov = np.cov(Xz, rowvar=False)
-    mvn = stats.multivariate_normal(mean=mu, cov=cov + 1e-6 * np.eye(3))
+    mvn = stats.multivariate_normal(mean=mu, cov=cov + 1e-6 * np.eye(3))  # pyright: ignore[reportArgumentType]
     # P(chaque axe > 1 écart-type) : probabilité dans la queue conjointe
     tail = 1.0 - mvn.cdf(np.full(3, 1.0))
     inter = (
@@ -115,10 +115,10 @@ def q10_hubris(feat: pl.DataFrame) -> pl.DataFrame:
     KMeans sur les caractéristiques standardisées ; le cluster identifié
     'hubris' = part variable élevée + stockage faible + interconnexion faible.
     """
-    X = feat.select(["var_share", "storage_share", "pipeline_ratio"]).to_numpy()
+    X = np.asarray(feat.select(["var_share", "storage_share", "pipeline_ratio"]).to_numpy(), dtype=np.float64)
     X = np.nan_to_num(X, nan=0.0)
     Xs = StandardScaler().fit_transform(X)
-    km = KMeans(n_clusters=4, n_init=20, random_state=42).fit(Xs)
+    km = KMeans(n_clusters=4, n_init=20, random_state=42).fit(Xs)  # pyright: ignore[reportArgumentType]
     out = feat.with_columns(pl.Series("cluster", km.labels_.astype(int)))
     centroids = pd_centroids(km, ["var_share", "storage_share", "pipeline_ratio"])
     # cluster le plus "hubris" : centroïde var_share max
@@ -242,12 +242,12 @@ def q15_resilience(feat: pl.DataFrame) -> pl.DataFrame:
     cols = ["fossil_mw", "nuclear_mw", "hydro_mw", "var_mw", "bio_geo_mw"]
     out = []
     for r in feat.select(["iso3"] + cols).iter_rows(named=True):
-        parts = np.array([r[c] for c in cols], dtype=float)
+        parts = np.array([float(r[c]) for c in cols], dtype=np.float64)
         parts = parts[parts > 1.0]
         if parts.sum() <= 0:
             ent = 0.0
         else:
-            ent = stats.entropy(parts / parts.sum())
+            ent = float(stats.entropy(parts / parts.sum()))
         out.append({"iso3": r["iso3"], "shannon_entropy": round(ent, 3),
                     "n_tech_gt1gw": int((parts > 1000.0).sum())})
     res = pl.DataFrame(out).sort("shannon_entropy", descending=True)

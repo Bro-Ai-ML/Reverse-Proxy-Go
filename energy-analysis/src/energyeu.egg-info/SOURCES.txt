@@ -3,6 +3,7 @@ pyproject.toml
 src/energyeu/__init__.py
 src/energyeu/config.py
 src/energyeu/load.py
+src/energyeu/peak.py
 src/energyeu.egg-info/PKG-INFO
 src/energyeu.egg-info/SOURCES.txt
 src/energyeu.egg-info/dependency_links.txt
