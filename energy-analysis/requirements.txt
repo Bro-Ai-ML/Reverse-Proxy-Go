@@ -1,0 +1,11 @@
+polars>=1.0
+duckdb>=1.0
+scipy>=1.13
+scikit-learn>=1.5
+pyro-ppl>=1.9
+pandas>=2.2
+openpyxl>=3.1
+matplotlib>=3.8
+networkx>=3.3
+pyarrow>=16.0
+numpy>=1.26

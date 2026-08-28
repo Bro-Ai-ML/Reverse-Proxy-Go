@@ -1,0 +1,319 @@
+iso3,type,status,n,capacity_mw
+ESP,utility-scale solar,pre-construction,1082,91742.6
+GBR,wind,pre-construction,434,73442.0
+SWE,wind,pre-construction,75,68069.8
+GRC,utility-scale solar,pre-construction,1866,51138.7
+ESP,wind,pre-construction,667,46996.3
+IRL,wind,pre-construction,78,42451.3
+ITA,wind,pre-construction,50,36956.4
+GBR,utility-scale solar,pre-construction,1158,31858.4
+FIN,wind,pre-construction,110,26977.7
+DNK,wind,pre-construction,18,23071.3
+GRC,wind,pre-construction,514,20476.0
+NLD,wind,pre-construction,13,18240.0
+ESP,utility-scale solar,announced,73,18182.5
+GRC,utility-scale solar,announced,73,16716.7
+SWE,wind,announced,9,16419.0
+NOR,wind,announced,23,15625.0
+ITA,wind,announced,20,15048.2
+SWE,wind,shelved,9,14704.0
+FIN,utility-scale solar,pre-construction,126,13043.9
+POL,nuclear,announced,46,11862.0
+GBR,oil/gas,pre-construction,31,11120.5
+FRA,wind,announced,61,10928.2
+POL,wind,pre-construction,17,10533.0
+TUR,nuclear,announced,8,9900.0
+NOR,wind,pre-construction,30,9833.0
+FRA,wind,pre-construction,222,9772.9
+GBR,hydropower,pre-construction,8,9550.0
+DEU,wind,pre-construction,159,9219.8
+POL,wind,announced,10,8702.8
+DEU,utility-scale solar,pre-construction,739,8126.2
+ESP,wind,announced,30,8100.0
+EST,wind,pre-construction,10,7970.1
+GBR,oil/gas,shelved,10,7638.5
+GBR,wind,announced,7,7096.0
+GBR,wind,shelved,245,6868.2
+DEU,wind,announced,238,6836.4
+DEU,oil/gas,announced,13,6830.0
+DEU,oil/gas,pre-construction,14,6607.4
+FRA,nuclear,announced,4,6600.0
+IRL,utility-scale solar,announced,83,6563.9
+GRC,wind,announced,64,6249.6
+IRL,wind,announced,23,6113.0
+PRT,wind,pre-construction,7,5759.0
+PRT,utility-scale solar,pre-construction,33,5335.8
+DNK,wind,shelved,13,5234.0
+FIN,wind,announced,9,4795.0
+UKR,nuclear,pre-construction,4,4678.0
+GBR,oil/gas,announced,7,4497.5
+EST,wind,announced,5,4269.0
+SWE,utility-scale solar,pre-construction,33,4247.6
+ITA,oil/gas,shelved,12,4155.1
+SRB,wind,announced,12,4154.0
+ITA,utility-scale solar,pre-construction,74,4125.2
+POL,oil/gas,pre-construction,9,4104.0
+FRA,utility-scale solar,pre-construction,146,4070.9
+ESP,wind,shelved,89,4032.6
+ESP,hydropower,announced,6,3921.0
+BEL,wind,pre-construction,67,3871.0
+ROU,utility-scale solar,pre-construction,20,3860.5
+POL,nuclear,shelved,3,3750.0
+POL,nuclear,pre-construction,3,3750.0
+UKR,nuclear,announced,3,3750.0
+TUR,utility-scale solar,pre-construction,211,3652.6
+CZE,nuclear,pre-construction,3,3600.0
+IRL,oil/gas,pre-construction,28,3521.1
+ESP,utility-scale solar,shelved,37,3400.6
+FRA,nuclear,pre-construction,2,3300.0
+NLD,nuclear,pre-construction,2,3300.0
+GBR,nuclear,pre-construction,6,3280.0
+DNK,wind,announced,9,3261.2
+IRL,wind,shelved,3,3140.0
+NOR,utility-scale solar,pre-construction,80,3119.9
+SRB,utility-scale solar,announced,19,3039.6
+SRB,hydropower,pre-construction,2,3030.0
+ITA,oil/gas,pre-construction,12,2964.0
+GRC,oil/gas,pre-construction,7,2826.0
+SRB,wind,pre-construction,20,2633.0
+HUN,nuclear,pre-construction,2,2530.0
+BIH,wind,pre-construction,22,2386.0
+LVA,wind,announced,7,2347.4
+MNE,utility-scale solar,pre-construction,13,2307.0
+GBR,nuclear,shelved,2,2300.0
+AUT,hydropower,pre-construction,5,2297.0
+ESP,hydropower,pre-construction,5,2295.0
+AZE,wind,announced,2,2240.0
+UKR,oil/gas,pre-construction,13,2209.2
+GBR,nuclear,announced,6,2140.0
+ROU,oil/gas,pre-construction,8,2123.2
+FIN,utility-scale solar,announced,46,2107.3
+CZE,nuclear,announced,4,2100.0
+TUR,wind,pre-construction,33,2059.6
+ROU,wind,pre-construction,9,2043.0
+NOR,hydropower,pre-construction,10,2001.0
+BGR,nuclear,pre-construction,2,2000.0
+UKR,hydropower,pre-construction,2,1972.0
+GBR,utility-scale solar,shelved,213,1902.6
+ROU,nuclear,pre-construction,8,1902.0
+CZE,oil/gas,announced,5,1900.0
+ROU,wind,shelved,2,1900.0
+DEU,oil/gas,shelved,2,1847.0
+ITA,utility-scale solar,announced,36,1821.3
+GRC,hydropower,pre-construction,7,1762.0
+TUR,coal,pre-construction,3,1738.0
+POL,oil/gas,announced,4,1699.0
+POL,utility-scale solar,pre-construction,16,1658.0
+BIH,utility-scale solar,pre-construction,20,1632.0
+BGR,hydropower,announced,2,1600.0
+LTU,wind,pre-construction,6,1574.0
+LVA,utility-scale solar,announced,7,1558.0
+TUR,coal,shelved,3,1500.0
+DNK,utility-scale solar,pre-construction,12,1471.8
+POL,hydropower,pre-construction,2,1450.0
+BEL,wind,shelved,3,1449.0
+TUR,hydropower,pre-construction,4,1448.0
+BGR,oil/gas,shelved,3,1420.0
+NOR,wind,shelved,5,1412.4
+LVA,wind,pre-construction,10,1411.6
+IRL,utility-scale solar,pre-construction,113,1381.5
+BIH,hydropower,shelved,3,1360.0
+ROU,utility-scale solar,announced,9,1345.6
+PRT,hydropower,pre-construction,1,1320.0
+ALB,wind,announced,8,1210.5
+MKD,oil/gas,pre-construction,3,1205.0
+ALB,hydropower,announced,1,1200.0
+NOR,nuclear,announced,4,1200.0
+ARM,nuclear,announced,1,1200.0
+BIH,oil/gas,shelved,2,1200.0
+SVK,nuclear,pre-construction,1,1200.0
+UKR,oil/gas,announced,7,1199.0
+CHE,hydropower,pre-construction,3,1198.0
+IRL,oil/gas,announced,5,1185.0
+UKR,wind,pre-construction,3,1181.0
+DEU,utility-scale solar,announced,4,1180.8
+CZE,oil/gas,pre-construction,9,1173.0
+LTU,wind,announced,6,1167.0
+SVN,nuclear,announced,1,1100.0
+HRV,utility-scale solar,pre-construction,17,1092.0
+SRB,utility-scale solar,pre-construction,10,1058.0
+ROU,hydropower,pre-construction,2,1055.0
+SWE,utility-scale solar,announced,11,1050.5
+BIH,coal,pre-construction,3,1050.0
+AUT,hydropower,shelved,1,1000.0
+HUN,oil/gas,pre-construction,2,1000.0
+PRT,wind,announced,1,990.0
+FRA,wind,shelved,26,976.1
+PRT,utility-scale solar,announced,6,913.0
+DNK,utility-scale solar,announced,4,900.8
+BEL,oil/gas,pre-construction,1,900.0
+AZE,utility-scale solar,announced,6,890.0
+ITA,oil/gas,announced,2,885.0
+MKD,utility-scale solar,announced,5,865.0
+UKR,wind,shelved,4,859.0
+SRB,oil/gas,announced,2,850.0
+HRV,utility-scale solar,announced,12,844.7
+BGR,hydropower,pre-construction,1,840.0
+EST,hydropower,pre-construction,2,775.0
+UKR,oil/gas,shelved,3,750.0
+BGR,wind,announced,3,722.0
+BGR,utility-scale solar,pre-construction,4,718.0
+NLD,wind,announced,1,700.0
+NOR,utility-scale solar,announced,7,655.1999999999999
+AZE,utility-scale solar,pre-construction,3,655.0
+GEO,hydropower,pre-construction,5,654.0
+GRC,oil/gas,shelved,1,651.0
+MNE,utility-scale solar,announced,4,650.8
+FRA,oil/gas,pre-construction,1,647.0
+BGR,utility-scale solar,announced,6,636.0
+LTU,utility-scale solar,pre-construction,2,627.0
+HRV,wind,pre-construction,4,624.0
+EST,nuclear,announced,2,600.0
+GBR,hydropower,shelved,1,600.0
+BGR,wind,shelved,1,592.0
+TUR,utility-scale solar,announced,31,590.6
+NLD,oil/gas,pre-construction,2,560.0
+GRC,oil/gas,announced,2,557.0
+BEL,hydropower,shelved,1,550.0
+SWE,hydropower,announced,3,545.0
+BIH,utility-scale solar,announced,5,530.0
+ROU,wind,announced,1,528.0
+MKD,hydropower,pre-construction,2,527.0
+ROU,oil/gas,announced,2,520.0
+ALB,oil/gas,pre-construction,4,520.0
+UKR,wind,announced,6,517.1
+GEO,hydropower,announced,4,516.0
+HRV,oil/gas,shelved,2,500.0
+NOR,hydropower,announced,1,500.0
+XKX,oil/gas,announced,1,500.0
+AZE,oil/gas,pre-construction,1,500.0
+HRV,hydropower,announced,1,498.0
+FRA,utility-scale solar,announced,18,496.8
+SVN,hydropower,pre-construction,3,482.0
+AZE,wind,pre-construction,3,480.5
+GBR,bioenergy,pre-construction,10,457.3
+NLD,utility-scale solar,pre-construction,9,452.9
+LTU,utility-scale solar,announced,6,443.5
+HRV,wind,announced,9,425.1
+MKD,wind,shelved,3,414.0
+HRV,hydropower,pre-construction,1,412.0
+GEO,oil/gas,pre-construction,1,400.0
+ALB,utility-scale solar,pre-construction,7,390.0
+IRL,hydropower,pre-construction,1,360.0
+SVN,wind,pre-construction,7,354.0
+ISL,wind,announced,1,350.0
+TUR,hydropower,shelved,1,327.0
+BIH,wind,announced,2,325.0
+ALB,utility-scale solar,announced,6,324.0
+GEO,wind,announced,4,317.8
+CHE,utility-scale solar,pre-construction,11,300.7
+DEU,hydropower,pre-construction,1,300.0
+MLT,wind,pre-construction,1,300.0
+IRL,oil/gas,shelved,1,299.0
+POL,utility-scale solar,announced,4,294.4
+MNE,hydropower,pre-construction,2,292.0
+MNE,utility-scale solar,shelved,3,290.0
+DEU,hydropower,shelved,1,280.0
+BEL,wind,announced,7,278.5
+MDA,oil/gas,announced,2,277.5
+HUN,utility-scale solar,announced,6,276.0
+ITA,hydropower,pre-construction,1,270.0
+XKX,utility-scale solar,pre-construction,3,258.0
+GEO,wind,pre-construction,2,256.0
+CHE,wind,pre-construction,9,255.0
+MNE,hydropower,announced,1,250.0
+AUT,wind,pre-construction,5,250.0
+UKR,utility-scale solar,announced,1,250.0
+TUR,geothermal,pre-construction,10,249.4
+LVA,utility-scale solar,pre-construction,2,248.0
+BIH,hydropower,pre-construction,4,247.0
+BGR,oil/gas,announced,1,240.0
+BIH,oil/gas,announced,2,237.5
+ALB,wind,pre-construction,1,220.0
+NLD,utility-scale solar,announced,3,219.0
+MNE,wind,pre-construction,2,218.0
+ALB,hydropower,shelved,1,210.0
+ISL,wind,pre-construction,2,208.2
+XKX,wind,shelved,4,204.0
+EST,oil/gas,announced,1,200.0
+ARM,utility-scale solar,announced,1,200.0
+CYP,oil/gas,pre-construction,3,185.0
+ARM,hydropower,pre-construction,2,176.0
+CYP,utility-scale solar,pre-construction,2,172.0
+GEO,utility-scale solar,announced,2,169.0
+ITA,utility-scale solar,shelved,4,167.70000000000002
+GRC,hydropower,announced,1,160.0
+CHE,utility-scale solar,announced,16,157.8
+MKD,utility-scale solar,pre-construction,3,153.0
+AUT,wind,announced,2,152.0
+HUN,utility-scale solar,pre-construction,2,151.0
+LTU,oil/gas,shelved,1,150.0
+MKD,hydropower,announced,2,148.0
+XKX,wind,pre-construction,5,146.0
+SVN,utility-scale solar,announced,2,145.1
+XKX,wind,announced,1,132.0
+FRA,bioenergy,pre-construction,1,130.0
+ARM,oil/gas,pre-construction,1,126.0
+TUR,hydropower,announced,2,126.0
+SWE,bioenergy,pre-construction,3,119.0
+HRV,geothermal,pre-construction,4,118.0
+ALB,oil/gas,announced,2,110.2
+SWE,hydropower,pre-construction,1,110.0
+SVN,wind,announced,2,110.0
+LTU,hydropower,pre-construction,1,110.0
+XKX,utility-scale solar,announced,1,105.0
+EST,oil/gas,pre-construction,1,100.0
+BEL,bioenergy,announced,1,100.0
+ITA,hydropower,shelved,1,98.0
+TUR,geothermal,announced,2,94.6
+BIH,hydropower,announced,2,88.0
+GBR,bioenergy,shelved,2,88.0
+DEU,bioenergy,announced,2,88.0
+ITA,bioenergy,pre-construction,2,83.4
+SVK,wind,announced,2,83.0
+POL,hydropower,shelved,1,80.0
+TUR,bioenergy,announced,2,77.0
+FIN,hydropower,pre-construction,1,75.0
+LUX,wind,pre-construction,4,70.5
+AUT,bioenergy,announced,1,70.0
+GBR,bioenergy,announced,2,60.0
+POL,oil/gas,shelved,1,60.0
+BEL,utility-scale solar,pre-construction,6,58.1
+UKR,bioenergy,pre-construction,2,58.0
+BGR,wind,pre-construction,1,56.0
+ISL,hydropower,pre-construction,1,55.0
+FRA,hydropower,announced,1,55.0
+HUN,geothermal,announced,1,50.0
+IRL,bioenergy,pre-construction,1,50.0
+POL,bioenergy,pre-construction,1,50.0
+CHE,wind,shelved,1,45.0
+GRC,wind,shelved,1,42.8
+BGR,oil/gas,pre-construction,1,42.0
+ITA,hydropower,announced,1,42.0
+UKR,bioenergy,shelved,1,40.0
+SVN,hydropower,announced,1,39.0
+SVN,utility-scale solar,pre-construction,2,38.0
+PRT,utility-scale solar,shelved,2,32.0
+CHE,bioenergy,pre-construction,1,31.0
+FRA,utility-scale solar,shelved,1,30.0
+FIN,bioenergy,announced,1,30.0
+SVK,wind,pre-construction,2,28.0
+DEU,wind,shelved,1,28.0
+MDA,oil/gas,pre-construction,1,27.5
+MNE,wind,announced,1,21.0
+LVA,bioenergy,announced,1,20.0
+LUX,wind,announced,1,17.0
+BEL,utility-scale solar,announced,1,17.0
+ROU,oil/gas,shelved,1,14.94
+MKD,wind,pre-construction,1,14.0
+CZE,wind,pre-construction,1,12.0
+PRT,geothermal,pre-construction,1,12.0
+DEU,geothermal,announced,1,12.0
+TUR,wind,announced,1,10.0
+PRT,wind,shelved,1,10.0
+GRC,geothermal,announced,1,8.0
+SVK,geothermal,pre-construction,1,6.5
+GBR,geothermal,pre-construction,1,5.0
+CHE,geothermal,pre-construction,1,5.0
+PRT,geothermal,announced,1,5.0
+BLR,utility-scale solar,shelved,1,2.0

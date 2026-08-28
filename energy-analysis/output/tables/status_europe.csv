@@ -1,0 +1,11 @@
+status,n_units,capacity_mw
+operating,44821,1210810.909999991
+pre-construction,8760,781190.7999999981
+cancelled,2147,496656.99999999977
+announced,1284,266823.0
+retired,996,216802.09999999992
+cancelled - inferred 4 y,717,91267.1
+shelved - inferred 2 y,821,86803.3
+shelved,733,78604.54000000001
+construction,875,75603.1
+mothballed,258,50182.99999999999
