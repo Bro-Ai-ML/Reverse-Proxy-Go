@@ -55,5 +55,6 @@ pas versionnées dans git. Les tables de résultats et figures sont dans
 
 - `docs/15_questions_europe.md` — le rapport principal (en français)
 - `docs/rapport_europe.html` — rapport HTML autonome (figures intégrées en base64, généré par `scripts/08_html_report.py`)
+- `docs/rapport_europe.pdf` — rapport PDF (page de garde + TOC cliquable + 15 pages, généré par `scripts/09_pdf_report.py`, reportlab + police DejaVu embarquée)
 - `output/tables/*.csv` — tous les chiffres cités dans le rapport
 - `output/figures/*.png` — cartes et graphiques
