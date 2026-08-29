@@ -9,9 +9,9 @@ if [ ! -x "$PY" ]; then
   exit 1
 fi
 
-for script in 01_profile 02_corridors 03_topology 04_temporal 05_models 06_maps 07_misc_questions 08_html_report 09_pdf_report 10_stack_audit; do
+for script in 01_profile 02_corridors 03_topology 04_temporal 05_models 06_maps 07_misc_questions 08_html_report 09_pdf_report 10_stack_audit 11_norway_deepdive 12_lecture_corrigee_pdf; do
   echo "▶ scripts/${script}.py"
   "$PY" "scripts/${script}.py"
 done
 
-echo "✔ Terminé — tables dans output/tables/, figures dans output/figures/, rapports dans docs/ (markdown + HTML + PDF)"
+echo "✔ Terminé — tables dans output/tables/, figures dans output/figures/, rapports dans docs/ (markdown + HTML + PDF + lecture corrigée)"

@@ -39,6 +39,8 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python scripts/08_html_report.py   # génère docs/rapport_europe.html
 .venv/bin/python scripts/09_pdf_report.py    # génère docs/rapport_europe.pdf
 .venv/bin/python scripts/10_stack_audit.py   # audit stack (polars/duckdb/scipy/sklearn/pyro/networkx) + vérification affirmations
+.venv/bin/python scripts/11_norway_deepdive.py  # écart hydro GEM vs officiel (NVE, etc.)
+.venv/bin/python scripts/12_lecture_corrigee_pdf.py  # PDF de la lecture corrigée
 ```
 
 Les données brutes (`data/raw`) et intermédiaires (`data/processed`) ne sont
@@ -57,6 +59,7 @@ pas versionnées dans git. Les tables de résultats et figures sont dans
 
 - `docs/15_questions_europe.md` — le rapport principal (en français)
 - `docs/rapport_europe.html` — rapport HTML autonome (figures intégrées en base64, généré par `scripts/08_html_report.py`)
-- `docs/rapport_europe.pdf` — rapport PDF (page de garde + TOC cliquable + 15 pages, généré par `scripts/09_pdf_report.py`, reportlab + police DejaVu embarquée)
+- `docs/rapport_europe.pdf` — rapport PDF (page de garde + TOC cliquable + 18 pages, généré par `scripts/09_pdf_report.py`, reportlab + police DejaVu embarquée)
+- `docs/lecture_corrigee.md` / `lecture_corrigee.pdf` — « les banques centrales de l'électricité », version corrigée (3 corrections + deep-dive Norvège) générée par `scripts/12_lecture_corrigee_pdf.py`
 - `output/tables/*.csv` — tous les chiffres cités dans le rapport
 - `output/figures/*.png` — cartes et graphiques

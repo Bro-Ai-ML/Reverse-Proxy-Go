@@ -57,18 +57,18 @@ DEU,utility-scale solar,2,181.0
 NLD,wind,1,175.0
 BIH,hydropower,1,159.0
 AUT,wind,4,155.6
-ALB,wind,1,150.0
-BIH,utility-scale solar,2,150.0
 XKX,utility-scale solar,1,150.0
-HRV,utility-scale solar,2,120.0
-CZE,utility-scale solar,2,120.0
+BIH,utility-scale solar,2,150.0
+ALB,wind,1,150.0
 CHE,hydropower,1,120.0
+CZE,utility-scale solar,2,120.0
+HRV,utility-scale solar,2,120.0
 MKD,utility-scale solar,2,118.7
 CZE,oil/gas,2,109.0
+ESP,bioenergy,2,100.0
 HUN,bioenergy,2,100.0
 ALB,utility-scale solar,1,100.0
 POL,coal,1,100.0
-ESP,bioenergy,2,100.0
 ISL,hydropower,1,93.0
 CZE,bioenergy,2,80.0
 BEL,utility-scale solar,3,70.2
@@ -80,14 +80,14 @@ ARM,oil/gas,1,50.0
 HRV,wind,1,45.0
 ISL,geothermal,1,45.0
 AZE,hydropower,1,36.0
-BEL,wind,2,35.0
 HRV,hydropower,1,35.0
+BEL,wind,2,35.0
 CHE,bioenergy,1,25.0
 TUR,geothermal,1,24.5
 SWE,utility-scale solar,1,22.0
+DEU,bioenergy,1,20.0
 HUN,utility-scale solar,1,20.0
 TUR,wind,1,20.0
-DEU,bioenergy,1,20.0
 HRV,geothermal,1,20.0
 CYP,wind,1,16.0
 ITA,wind,1,13.2
