@@ -1,0 +1,7 @@
+iso3,pays,gem_hydro_operating_gw,gem_hydro_tous_statuts_gw,gem_pumped_operating_gw,officiel_gw,ecart_gw,ecart_pct,source
+FIN,Finlande,2.5,2.6,0.0,3.2,-0.7,-20.5,"ordre de grandeur ~3,2 GW (2023)"
+FRA,France,21.3,21.4,5.75,25.5,-4.2,-16.3,"Connaissance des Énergies, 2024 (continentale, dont ~5 GW STEP)"
+SWE,Suède,13.8,14.5,0.09,16.4,-2.6,-15.6,Energimyndigheten/2024 (~16 399 MW)
+NOR,Norvège,28.9,31.5,0.47,33.9,-5.0,-14.7,"NVE, début 2026 (1 791 installations, 137,6 TWh)"
+AUT,Autriche,12.9,16.6,6.14,14.1,-1.2,-8.4,"ANDRITZ (~14 130 MW, dont ~8,4 GW pompage)"
+CHE,Suisse,14.3,17.0,3.75,15.5,-1.2,-7.8,"ordre de grandeur ~15,5 GW (BFE/SFOE)"

@@ -1,0 +1,11 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": ["src", "scripts"],
+  "pythonVersion": "3.11",
+  "reportMissingImports": "error",
+  "reportMissingModuleSource": "none",
+  "reportGeneralTypeIssues": true,
+  "reportOptionalMemberAccess": false,
+  "typeCheckingMode": "standard"
+}

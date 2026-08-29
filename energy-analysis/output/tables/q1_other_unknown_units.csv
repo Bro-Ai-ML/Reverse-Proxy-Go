@@ -1,0 +1,54 @@
+type,status,n,capacity_mw
+coal,cancelled,176,114368.0
+wind,pre-construction,45,73020.0
+wind,cancelled,50,44316.5
+wind,announced,30,35757.0
+nuclear,cancelled,18,22410.0
+coal,retired,144,21173.0
+wind,cancelled - inferred 4 y,23,18258.0
+bioenergy,operating,273,15876.839999999995
+oil/gas,operating,89,11550.5
+coal,mothballed,53,10951.0
+wind,shelved,15,8449.0
+nuclear,announced,10,8200.0
+oil/gas,pre-construction,21,8167.0
+oil/gas,shelved,10,4357.0
+hydropower,operating,62,4269.0
+oil/gas,announced,7,4262.5
+coal,operating,35,3460.7
+wind,operating,13,3434.8
+wind,shelved - inferred 2 y,8,3210.0
+wind,construction,3,2930.0
+coal,pre-construction,5,2438.0
+hydropower,cancelled,9,1804.0
+hydropower,pre-construction,7,1540.0
+hydropower,cancelled - inferred 4 y,8,1300.0
+nuclear,pre-construction,1,1200.0
+oil/gas,shelved - inferred 2 y,5,1100.0
+coal,shelved,1,1000.0
+bioenergy,construction,11,968.4
+hydropower,shelved - inferred 2 y,6,875.0
+oil/gas,construction,3,735.0
+bioenergy,shelved - inferred 2 y,3,720.0
+bioenergy,cancelled,8,694.0
+oil/gas,cancelled,3,596.0
+geothermal,operating,23,576.1
+geothermal,cancelled - inferred 4 y,8,480.0
+bioenergy,retired,4,386.0
+bioenergy,announced,8,374.0
+bioenergy,pre-construction,6,339.0
+oil/gas,cancelled - inferred 4 y,6,320.0
+hydropower,announced,2,289.0
+bioenergy,cancelled - inferred 4 y,8,230.4
+oil/gas,mothballed,2,204.0
+geothermal,announced,5,164.6
+oil/gas,retired,2,162.0
+geothermal,shelved - inferred 2 y,4,158.0
+hydropower,shelved,2,158.0
+geothermal,cancelled,2,110.0
+coal,construction,1,100.0
+geothermal,pre-construction,8,94.3
+geothermal,construction,4,79.5
+hydropower,retired,1,44.0
+nuclear,retired,1,7.0
+wind,retired,1,4.0

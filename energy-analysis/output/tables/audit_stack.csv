@@ -1,0 +1,6 @@
+check,groups,mismatched_rows,cap_polars_gw,cap_duckdb_gw,max_rel_diff_pct,n,rho_hydro_vs_cascade,p_hydro,rho_evening_vs_cascade,p_evening,inertia,hubris_iso3_recluster,hubris_iso3_report,samples,growth_rate_med_pct,growth_rate_p10_pct,growth_rate_p90_pct,edges,nodes,top
+polars_vs_duckdb,653,0,21149.7,21149.7,0.0,,,,,,,,,,,,,,,
+scipy_spearman,,,,,,40,0.02,0.9010733715207633,0.127,0.43340024381435943,,,,,,,,,,
+sklearn_kmeans_recluster,,,,,,45,,,,,38.88,"EST,GRC,IRL,MNE","EST,GRC,IRL,MNE",,,,,,,
+pyro_resample_q7,,,,,,,,,,,,,,300,130.4,102.3,159.4,,,
+networkx_betweenness_top3,,,,,,,,,,,,,,,,,,108,63,TUR-GRC:0.227;GRC-ITA:0.227;TUR-SYR:0.204

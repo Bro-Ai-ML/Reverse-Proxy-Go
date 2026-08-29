@@ -1,0 +1,98 @@
+iso3,type,n,capacity_mw
+GBR,wind,43,8469.4
+ESP,utility-scale solar,103,7577.9
+GRC,utility-scale solar,173,6118.5
+TUR,nuclear,4,4800.0
+POL,oil/gas,10,3751.0
+GBR,nuclear,2,3440.0
+ROU,oil/gas,8,2690.0
+GBR,utility-scale solar,125,2535.7
+DEU,wind,10,2063.0
+ITA,oil/gas,3,1858.0
+GBR,oil/gas,7,1668.5
+DEU,oil/gas,5,1644.0
+POL,wind,8,1513.0
+FRA,wind,27,1510.2
+ESP,wind,35,1405.0
+ROU,utility-scale solar,13,1191.3
+SWE,wind,5,1116.6
+ITA,utility-scale solar,16,1101.5
+GRC,wind,45,1091.4
+IRL,oil/gas,12,1008.5
+GBR,bioenergy,13,875.0
+BEL,oil/gas,1,870.0
+TUR,oil/gas,1,850.0
+GRC,hydropower,3,842.0
+GRC,oil/gas,1,840.0
+GEO,hydropower,3,787.0
+ROU,wind,4,700.2
+FIN,wind,5,689.0
+IRL,utility-scale solar,7,613.6
+HUN,oil/gas,1,540.0
+TUR,utility-scale solar,3,525.0
+TUR,hydropower,2,496.0
+MKD,wind,3,473.0
+SVK,nuclear,1,471.0
+FRA,utility-scale solar,12,461.7
+AZE,utility-scale solar,1,445.0
+CYP,oil/gas,2,420.0
+FIN,utility-scale solar,10,412.5
+BGR,utility-scale solar,3,392.0
+AUT,hydropower,3,390.0
+PRT,utility-scale solar,8,389.0
+POL,utility-scale solar,6,357.0
+NLD,utility-scale solar,6,355.5
+EST,utility-scale solar,2,344.0
+PRT,wind,3,325.0
+SWE,bioenergy,2,301.0
+NOR,wind,1,300.0
+IRL,wind,8,257.0
+ARM,utility-scale solar,37,246.3
+LVA,utility-scale solar,3,225.0
+DEU,hydropower,2,210.0
+ESP,hydropower,1,200.0
+BIH,wind,2,191.0
+LTU,wind,3,185.0
+DEU,utility-scale solar,2,181.0
+NLD,wind,1,175.0
+BIH,hydropower,1,159.0
+AUT,wind,4,155.6
+XKX,utility-scale solar,1,150.0
+BIH,utility-scale solar,2,150.0
+ALB,wind,1,150.0
+CHE,hydropower,1,120.0
+CZE,utility-scale solar,2,120.0
+HRV,utility-scale solar,2,120.0
+MKD,utility-scale solar,2,118.7
+CZE,oil/gas,2,109.0
+ESP,bioenergy,2,100.0
+HUN,bioenergy,2,100.0
+ALB,utility-scale solar,1,100.0
+POL,coal,1,100.0
+ISL,hydropower,1,93.0
+CZE,bioenergy,2,80.0
+BEL,utility-scale solar,3,70.2
+POL,bioenergy,1,68.4
+AUT,utility-scale solar,1,68.0
+SRB,wind,1,66.0
+MNE,wind,1,55.0
+ARM,oil/gas,1,50.0
+HRV,wind,1,45.0
+ISL,geothermal,1,45.0
+AZE,hydropower,1,36.0
+HRV,hydropower,1,35.0
+BEL,wind,2,35.0
+CHE,bioenergy,1,25.0
+TUR,geothermal,1,24.5
+SWE,utility-scale solar,1,22.0
+DEU,bioenergy,1,20.0
+HUN,utility-scale solar,1,20.0
+TUR,wind,1,20.0
+HRV,geothermal,1,20.0
+CYP,wind,1,16.0
+ITA,wind,1,13.2
+SVK,utility-scale solar,1,10.0
+MNE,utility-scale solar,1,9.2
+DEU,geothermal,1,8.0
+SVK,geothermal,1,6.0
+GBR,geothermal,1,2.0
