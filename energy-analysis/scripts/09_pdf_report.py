@@ -530,6 +530,36 @@ def build() -> None:
     story += _fig("europe_plants.png", "Centrales européennes (GIPT août 2026) — top 6 000 unités par capacité.")
 
     # ------------------------------------------------------------------
+    # ANNEXE — AUDIT
+    # ------------------------------------------------------------------
+    story.append(Paragraph("Annexe — Audit de la stack et vérification des affirmations", ST_H2))
+    story.append(Paragraph(
+        "Le script <font face='DejaVuMono' size='8'>10_stack_audit.py</font> exécute chaque composant de la "
+        "stack et vérifie les affirmations chiffrées de la lecture « banques centrales de l'électricité » "
+        "contre les données.", ST_P))
+    story.append(Paragraph("1. Cohérence de la stack", ST_H3))
+    story += _num_table("audit_stack.csv", None, None, "polars vs duckdb, scipy, sklearn, pyro, networkx.")
+    story.append(Paragraph(
+        "polars et duckdb (SQL sur le même parquet) donnent des totaux identiques (écart max 0 %). Le re-cluster "
+        "KMeans reproduit exactement le cluster hubris du rapport (EST, GRC, IRL, MNE). Le ré-échantillonnage pyro "
+        "retrouve un taux de croissance du stockage GEM-tracké de ~110 %/an. La topologie networkx reproduit les "
+        "3 arêtes critiques.", ST_P))
+    story.append(Paragraph("2. Vérification des affirmations", ST_H3))
+    story += _num_table("audit_claims.csv",
+                        ["affirmation", "valeur_mesuree", "valeur_min_attendue", "reference_externe", "unite", "statut"],
+                        None, "Affirmations de la lecture vs mesures (statut : confirmé / erroné / écart).")
+    story.append(Paragraph(
+        "<b>Bilan : 20 confirmées, 2 erronées</b> (Grèce et Irlande affichées « &gt;50 % variable » alors que le "
+        "cluster hubris réel est EST/GRC/IRL/MNE avec GRC 48,6 % et IRL 43,3 %), <b>1 écart significatif</b> : la "
+        "Norvège affichée « 34,8 GW hydro » alors que le GIPT n'en compte que 28,9 GW opérants — un biais de "
+        "couverture GEM en soi.", ST_P))
+    story.append(Paragraph(
+        "Chiffres hors périmètre GEM/GTD (non vérifiables ici) : CIP 37 Mds$, Brookfield TF-II 20 Mds$, Macquarie "
+        "3 Mds$, enspired 962 MW, Coalburn 2 500 MW, RTE 105 000 km, Elia+50Hertz 10 200 km, prix 0→500 €/MWh. "
+        "L'interconnexion grecque totalise 3 430 MW (TÜR 660 + ITA 500 + MKD 1 100 + BGR 770) ; « 150 MW » est "
+        "le lien Géorgie–Türkiye, pas la Grèce.", ST_P_SMALL))
+
+    # ------------------------------------------------------------------
     # LIMITES
     # ------------------------------------------------------------------
     story.append(Paragraph("Limites et prolongements", ST_H2))

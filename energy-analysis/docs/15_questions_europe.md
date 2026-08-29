@@ -305,3 +305,26 @@ Les 15 questions convergent vers trois enseignements :
 **Pour aller plus loin** (quand le réseau le permettra) : brancher ENTSO-E Transparency pour les heures réelles (Q8/Q9 deviennent exactes), intégrer le registre européen BESS (Q7 devient datable), et coupler avec les prix de marché (Q6 devient un arbitrage chiffré).
 
 *Reproductibilité : `energy-analysis/scripts/*.py` → `output/tables/*.csv` et `output/figures/*.png` ; `energy-analysis/docs/15_questions_europe.md` (ce document).*
+
+---
+
+## Annexe — Audit de la stack et vérification des affirmations
+
+Le script `scripts/10_stack_audit.py` exécute chaque composant de la stack et
+vérifie les affirmations chiffrées de la lecture « banques centrales de
+l'électricité » contre les données (`output/tables/audit_stack.csv` et
+`audit_claims.csv`).
+
+**1. Cohérence de la stack**
+- polars vs duckdb (SQL sur le même parquet) : totaux identiques (653 groupes, écart max 0 %)
+- scipy : corrélations de Spearman hydro/cascade (ρ=0,02) et soir-fossile/cascade (ρ=0,13)
+- sklearn : re-cluster KMeans → reproduit exactement le cluster hubris EST/GRC/IRL/MNE
+- pyro : ré-échantillonnage du modèle Q7 → taux de croissance du stockage GEM-tracké ~110 %/an (P10 94 % – P90 127 %)
+- networkx : betweenness → TÜR-GRC 0,227 · GRC-ITA 0,227 · TÜR-SYR 0,204 (reproductible)
+
+**2. Vérification des affirmations : 20 confirmées, 2 erronées, 1 écart**
+- **Erroné** : « Grèce >50 % variable » (mesuré 48,6 %) et « Irlande >50 % variable » (43,3 %) — le cluster hubris est EST/GRC/IRL/MNE, mais Grèce et Irlande ne dépassent pas 50 %.
+- **Écart significatif** : « Norvège 34,8 GW hydro » → 28,9 GW opérants dans le GIPT (biais de couverture GEM, 17 %).
+- **Erreur de lieu** : « IPTO : 150 MW aujourd'hui » — l'interconnexion grecque totalise 3 430 MW (TÜR 660 + ITA 500 + MKD 1 100 + BGR 770…) ; 150 MW est le lien Géorgie–Türkiye.
+
+**Non vérifiable** (hors périmètre GEM/GTD) : CIP 37 Mds$, Brookfield TF-II 20 Mds$, Macquarie 3 Mds$, enspired 962 MW, Coalburn 2 500 MW, RTE 105 000 km, Elia+50Hertz 10 200 km, prix 0→500 €/MWh.

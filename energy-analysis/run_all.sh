@@ -9,7 +9,7 @@ if [ ! -x "$PY" ]; then
   exit 1
 fi
 
-for script in 01_profile 02_corridors 03_topology 04_temporal 05_models 06_maps 07_misc_questions 08_html_report 09_pdf_report; do
+for script in 01_profile 02_corridors 03_topology 04_temporal 05_models 06_maps 07_misc_questions 08_html_report 09_pdf_report 10_stack_audit; do
   echo "▶ scripts/${script}.py"
   "$PY" "scripts/${script}.py"
 done

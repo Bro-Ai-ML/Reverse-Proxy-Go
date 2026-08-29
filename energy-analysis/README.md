@@ -37,6 +37,8 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python scripts/02_corridors.py
 ...
 .venv/bin/python scripts/08_html_report.py   # génère docs/rapport_europe.html
+.venv/bin/python scripts/09_pdf_report.py    # génère docs/rapport_europe.pdf
+.venv/bin/python scripts/10_stack_audit.py   # audit stack (polars/duckdb/scipy/sklearn/pyro/networkx) + vérification affirmations
 ```
 
 Les données brutes (`data/raw`) et intermédiaires (`data/processed`) ne sont

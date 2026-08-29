@@ -96,8 +96,8 @@ BGR,nuclear,pre-construction,2,2000.0
 UKR,hydropower,pre-construction,2,1972.0
 GBR,utility-scale solar,shelved,213,1902.6
 ROU,nuclear,pre-construction,8,1902.0
-ROU,wind,shelved,2,1900.0
 CZE,oil/gas,announced,5,1900.0
+ROU,wind,shelved,2,1900.0
 DEU,oil/gas,shelved,2,1847.0
 ITA,utility-scale solar,announced,36,1821.3
 GRC,hydropower,pre-construction,7,1762.0
@@ -122,11 +122,11 @@ ROU,utility-scale solar,announced,9,1345.6
 PRT,hydropower,pre-construction,1,1320.0
 ALB,wind,announced,8,1210.5
 MKD,oil/gas,pre-construction,3,1205.0
-ALB,hydropower,announced,1,1200.0
+SVK,nuclear,pre-construction,1,1200.0
 ARM,nuclear,announced,1,1200.0
 BIH,oil/gas,shelved,2,1200.0
-SVK,nuclear,pre-construction,1,1200.0
 NOR,nuclear,announced,4,1200.0
+ALB,hydropower,announced,1,1200.0
 UKR,oil/gas,announced,7,1199.0
 CHE,hydropower,pre-construction,3,1198.0
 IRL,oil/gas,announced,5,1185.0
@@ -140,8 +140,8 @@ SRB,utility-scale solar,pre-construction,10,1058.0
 ROU,hydropower,pre-construction,2,1055.0
 SWE,utility-scale solar,announced,11,1050.5
 BIH,coal,pre-construction,3,1050.0
-HUN,oil/gas,pre-construction,2,1000.0
 AUT,hydropower,shelved,1,1000.0
+HUN,oil/gas,pre-construction,2,1000.0
 PRT,wind,announced,1,990.0
 FRA,wind,shelved,26,976.1
 PRT,utility-scale solar,announced,6,913.0
@@ -179,13 +179,13 @@ SWE,hydropower,announced,3,545.0
 BIH,utility-scale solar,announced,5,530.0
 ROU,wind,announced,1,528.0
 MKD,hydropower,pre-construction,2,527.0
-ALB,oil/gas,pre-construction,4,520.0
 ROU,oil/gas,announced,2,520.0
+ALB,oil/gas,pre-construction,4,520.0
 UKR,wind,announced,6,517.1
 GEO,hydropower,announced,4,516.0
-HRV,oil/gas,shelved,2,500.0
-AZE,oil/gas,pre-construction,1,500.0
 NOR,hydropower,announced,1,500.0
+AZE,oil/gas,pre-construction,1,500.0
+HRV,oil/gas,shelved,2,500.0
 XKX,oil/gas,announced,1,500.0
 HRV,hydropower,announced,1,498.0
 FRA,utility-scale solar,announced,18,496.8
@@ -222,8 +222,8 @@ XKX,utility-scale solar,pre-construction,3,258.0
 GEO,wind,pre-construction,2,256.0
 CHE,wind,pre-construction,9,255.0
 UKR,utility-scale solar,announced,1,250.0
-MNE,hydropower,announced,1,250.0
 AUT,wind,pre-construction,5,250.0
+MNE,hydropower,announced,1,250.0
 TUR,geothermal,pre-construction,10,249.4
 LVA,utility-scale solar,pre-construction,2,248.0
 BIH,hydropower,pre-construction,4,247.0
@@ -253,21 +253,21 @@ XKX,wind,pre-construction,5,146.0
 SVN,utility-scale solar,announced,2,145.1
 XKX,wind,announced,1,132.0
 FRA,bioenergy,pre-construction,1,130.0
-TUR,hydropower,announced,2,126.0
 ARM,oil/gas,pre-construction,1,126.0
+TUR,hydropower,announced,2,126.0
 SWE,bioenergy,pre-construction,3,119.0
 HRV,geothermal,pre-construction,4,118.0
 ALB,oil/gas,announced,2,110.2
-LTU,hydropower,pre-construction,1,110.0
 SVN,wind,announced,2,110.0
+LTU,hydropower,pre-construction,1,110.0
 SWE,hydropower,pre-construction,1,110.0
 XKX,utility-scale solar,announced,1,105.0
 BEL,bioenergy,announced,1,100.0
 EST,oil/gas,pre-construction,1,100.0
 ITA,hydropower,shelved,1,98.0
 TUR,geothermal,announced,2,94.6
-BIH,hydropower,announced,2,88.0
 GBR,bioenergy,shelved,2,88.0
+BIH,hydropower,announced,2,88.0
 DEU,bioenergy,announced,2,88.0
 ITA,bioenergy,pre-construction,2,83.4
 SVK,wind,announced,2,83.0
@@ -276,13 +276,13 @@ TUR,bioenergy,announced,2,77.0
 FIN,hydropower,pre-construction,1,75.0
 LUX,wind,pre-construction,4,70.5
 AUT,bioenergy,announced,1,70.0
-GBR,bioenergy,announced,2,60.0
 POL,oil/gas,shelved,1,60.0
+GBR,bioenergy,announced,2,60.0
 BEL,utility-scale solar,pre-construction,6,58.1
 UKR,bioenergy,pre-construction,2,58.0
 BGR,wind,pre-construction,1,56.0
-ISL,hydropower,pre-construction,1,55.0
 FRA,hydropower,announced,1,55.0
+ISL,hydropower,pre-construction,1,55.0
 IRL,bioenergy,pre-construction,1,50.0
 POL,bioenergy,pre-construction,1,50.0
 HUN,geothermal,announced,1,50.0
@@ -295,25 +295,25 @@ SVN,hydropower,announced,1,39.0
 SVN,utility-scale solar,pre-construction,2,38.0
 PRT,utility-scale solar,shelved,2,32.0
 CHE,bioenergy,pre-construction,1,31.0
-FIN,bioenergy,announced,1,30.0
 FRA,utility-scale solar,shelved,1,30.0
+FIN,bioenergy,announced,1,30.0
 DEU,wind,shelved,1,28.0
 SVK,wind,pre-construction,2,28.0
 MDA,oil/gas,pre-construction,1,27.5
 MNE,wind,announced,1,21.0
 LVA,bioenergy,announced,1,20.0
-LUX,wind,announced,1,17.0
 BEL,utility-scale solar,announced,1,17.0
+LUX,wind,announced,1,17.0
 ROU,oil/gas,shelved,1,14.94
 MKD,wind,pre-construction,1,14.0
+CZE,wind,pre-construction,1,12.0
 DEU,geothermal,announced,1,12.0
 PRT,geothermal,pre-construction,1,12.0
-CZE,wind,pre-construction,1,12.0
-PRT,wind,shelved,1,10.0
 TUR,wind,announced,1,10.0
+PRT,wind,shelved,1,10.0
 GRC,geothermal,announced,1,8.0
 SVK,geothermal,pre-construction,1,6.5
-PRT,geothermal,announced,1,5.0
 CHE,geothermal,pre-construction,1,5.0
+PRT,geothermal,announced,1,5.0
 GBR,geothermal,pre-construction,1,5.0
 BLR,utility-scale solar,shelved,1,2.0
